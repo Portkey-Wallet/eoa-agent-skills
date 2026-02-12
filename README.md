@@ -40,6 +40,12 @@ bun run bin/setup.ts cursor
 # Cursor (global)
 bun run bin/setup.ts cursor --global
 
+# OpenClaw (output config)
+bun run bin/setup.ts openclaw
+
+# OpenClaw (merge into existing config)
+bun run bin/setup.ts openclaw --config-path /path/to/openclaw-config.json
+
 # Check status
 bun run bin/setup.ts list
 ```

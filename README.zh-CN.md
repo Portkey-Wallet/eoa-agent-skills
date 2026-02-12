@@ -40,6 +40,12 @@ bun run bin/setup.ts cursor
 # Cursor（全局）
 bun run bin/setup.ts cursor --global
 
+# OpenClaw（输出配置）
+bun run bin/setup.ts openclaw
+
+# OpenClaw（合并到已有配置文件）
+bun run bin/setup.ts openclaw --config-path /path/to/openclaw-config.json
+
 # 查看配置状态
 bun run bin/setup.ts list
 ```

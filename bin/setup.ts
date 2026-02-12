@@ -4,11 +4,14 @@ import { setupClaude, uninstallClaude } from './platforms/claude.js';
 import { setupCursor, uninstallCursor } from './platforms/cursor.js';
 import { setupOpenclaw } from './platforms/openclaw.js';
 import {
+  getPackageRoot,
   getPlatformPaths,
   readJsonFile,
+  writeJsonFile,
   SERVER_NAME,
 } from './platforms/utils.js';
 import * as fs from 'fs';
+import * as path from 'path';
 
 const program = new Command();
 
@@ -102,7 +105,22 @@ program
     console.log(
       `  Cursor (project): ${cursorProjectHasServer ? 'CONFIGURED' : cursorProjectExists ? 'NOT CONFIGURED' : 'CONFIG FILE NOT FOUND'}`,
     );
-    console.log(`    Path: ${paths.cursorProject}`);
+    console.log(`    Path: ${paths.cursorProject}\n`);
+
+    // OpenClaw
+    const openclawPath = path.join(getPackageRoot(), 'openclaw.json');
+    const openclawExists = fs.existsSync(openclawPath);
+    const openclawConfig = openclawExists ? readJsonFile(openclawPath) : null;
+    const toolCount = openclawConfig?.tools?.length ?? 0;
+    console.log(
+      `  OpenClaw: ${openclawExists ? `AVAILABLE (${toolCount} tools)` : 'openclaw.json NOT FOUND'}`,
+    );
+    console.log(`    Path: ${openclawPath}`);
+    if (openclawExists) {
+      console.log(
+        `    Usage: bun run bin/setup.ts openclaw --config-path <your-openclaw-config>`,
+      );
+    }
   });
 
 // ============================================================
@@ -111,7 +129,7 @@ program
 
 program
   .command('uninstall <platform>')
-  .description('Remove configuration for a platform (claude, cursor)')
+  .description('Remove configuration for a platform (claude, cursor, openclaw)')
   .option('--global', 'For cursor: uninstall from global config')
   .option('--config-path <path>', 'Custom config file path')
   .action((platform, opts) => {
@@ -122,8 +140,41 @@ program
       case 'cursor':
         uninstallCursor(opts);
         break;
+      case 'openclaw':
+        if (!opts.configPath) {
+          console.log(
+            '[INFO] OpenClaw tools are merged into external config files.',
+          );
+          console.log(
+            '       Provide --config-path to remove portkey tools from a specific file.',
+          );
+          return;
+        }
+        try {
+          const config = readJsonFile(opts.configPath);
+          if (!config.tools || !Array.isArray(config.tools)) {
+            console.log('[INFO] No tools found in config file.');
+            return;
+          }
+          const before = config.tools.length;
+          config.tools = config.tools.filter(
+            (t: any) => !t.name?.startsWith('portkey-eoa-'),
+          );
+          const removed = before - config.tools.length;
+          if (removed > 0) {
+            writeJsonFile(opts.configPath, config);
+            console.log(
+              `[DONE] Removed ${removed} portkey tools from ${opts.configPath}`,
+            );
+          } else {
+            console.log('[INFO] No portkey tools found in config file.');
+          }
+        } catch (err: any) {
+          console.error(`[ERROR] ${err.message}`);
+        }
+        break;
       default:
-        console.error(`Unknown platform: ${platform}`);
+        console.error(`Unknown platform: ${platform}. Supported: claude, cursor, openclaw`);
         process.exit(1);
     }
   });
