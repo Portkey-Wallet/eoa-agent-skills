@@ -1,0 +1,48 @@
+{
+  "name": "portkey-eoa-agent-skills",
+  "description": "AI Agent Skills for Portkey EOA Wallet on aelf blockchain",
+  "tools": [
+    {
+      "name": "portkey-eoa-wallet-create",
+      "description": "Create a new EOA wallet",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "wallet", "create"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-query-tokens",
+      "description": "Get token list with balances",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "query", "tokens"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-query-balance",
+      "description": "Get specific token balance",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "query", "balance"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-query-history",
+      "description": "Get transaction history",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "query", "history"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-transfer",
+      "description": "Send a token transfer",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "transfer"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-contract-view",
+      "description": "Call a read-only contract method",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "contract", "view"],
+      "cwd": "."
+    }
+  ]
+}

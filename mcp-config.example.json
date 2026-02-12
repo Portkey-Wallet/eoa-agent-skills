@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "portkey-eoa-agent-skills": {
+      "command": "bun",
+      "args": ["run", "/path/to/eoa-agent-skills/src/mcp/server.ts"],
+      "env": {
+        "PORTKEY_PRIVATE_KEY": "<YOUR_PRIVATE_KEY>",
+        "PORTKEY_NETWORK": "mainnet",
+        "PORTKEY_WALLET_PASSWORD": "<YOUR_WALLET_PASSWORD>"
+      }
+    }
+  }
+}
