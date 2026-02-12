@@ -1,4 +1,4 @@
-# @portkey-wallet/eoa-agent-skills
+# @portkey/eoa-agent-skills
 
 [aelf 区块链](https://aelf.com) 上 Portkey EOA 钱包的 AI Agent Skills。提供 MCP、CLI 和 SDK 三种接口，覆盖钱包管理、Token 转账、资产查询和智能合约交互。
 
@@ -113,7 +113,7 @@ bun run portkey_eoa_skill.ts contract view --contract-address 合约地址 --met
 ### SDK 使用
 
 ```typescript
-import { getConfig, createWallet, getTokenList, transfer } from '@portkey-wallet/eoa-agent-skills';
+import { getConfig, createWallet, getTokenList, transfer } from '@portkey/eoa-agent-skills';
 
 const config = getConfig('mainnet');
 

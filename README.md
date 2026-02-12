@@ -1,4 +1,4 @@
-# @portkey-wallet/eoa-agent-skills
+# @portkey/eoa-agent-skills
 
 AI Agent Skills for Portkey EOA Wallet on [aelf blockchain](https://aelf.com). Provides MCP, CLI, and SDK interfaces for wallet management, token transfers, asset queries, and smart contract interactions.
 
@@ -113,7 +113,7 @@ bun run portkey_eoa_skill.ts contract view --contract-address ADDR --method GetB
 ### SDK Usage
 
 ```typescript
-import { getConfig, createWallet, getTokenList, transfer } from '@portkey-wallet/eoa-agent-skills';
+import { getConfig, createWallet, getTokenList, transfer } from '@portkey/eoa-agent-skills';
 
 const config = getConfig('mainnet');
 
