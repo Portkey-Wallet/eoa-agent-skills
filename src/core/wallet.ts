@@ -254,3 +254,27 @@ function extractPublicKey(walletInfo: any): { x: string; y: string } {
   }
 }
 
+// ============================================================
+// AelfSigner bridge — create signer from resolved wallet
+// ============================================================
+
+import { createEoaSigner, type AelfSigner } from '@portkey/aelf-signer';
+
+/**
+ * Create an AelfSigner (EoaSigner) from the resolved private key.
+ * Uses the same resolution logic as eoa-agent-skills:
+ *   1. Direct privateKey param
+ *   2. PORTKEY_PRIVATE_KEY env var
+ *   3. Local wallet file (address + password)
+ *
+ * The returned signer can be used with awaken-agent-skills / eforest-agent-skills.
+ */
+export function createSignerFromWallet(params: {
+  privateKey?: string;
+  address?: string;
+  password?: string;
+}): AelfSigner {
+  const pk = resolvePrivateKey(params);
+  return createEoaSigner(pk);
+}
+

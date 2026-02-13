@@ -9,6 +9,7 @@ export {
   backupWallet,
   deleteWalletByAddress,
   resolvePrivateKey,
+  createSignerFromWallet,
 } from './src/core/wallet.js';
 
 // Core: Queries
@@ -47,6 +48,14 @@ export { getConfig } from './lib/config.js';
 
 // Crypto utilities
 export { generateStrongPassword } from './lib/crypto.js';
+
+// --- AelfSigner integration (for use with awaken/eforest DApp skills) ---
+export type { AelfSigner } from '@portkey/aelf-signer';
+export {
+  createEoaSigner,
+  createSignerFromEnv,
+  EoaSigner,
+} from '@portkey/aelf-signer';
 
 // Types
 export type {
