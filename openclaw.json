@@ -1,17 +1,17 @@
 {
   "name": "portkey-eoa-agent-skills",
-  "description": "AI Agent Skills for Portkey EOA Wallet on aelf blockchain. SECURITY: Never output mnemonic phrases, private keys, or passwords in channel messages. Use --redact-mnemonic for wallet creation. Sensitive data is encrypted locally and recoverable via wallet backup command.",
+  "description": "AI Agent Skills for Portkey EOA Wallet on aelf blockchain. SECURITY: Never output mnemonic phrases or private keys in channel messages. Auto-generated passwords SHOULD be returned to the user (they need it to unlock the wallet later). Use --redact-mnemonic for wallet creation. Mnemonic is encrypted in the wallet file and recoverable via wallet backup command with the correct password.",
   "tools": [
     {
       "name": "portkey-eoa-wallet-create",
-      "description": "Create a new EOA wallet. Password is auto-generated if omitted. Mnemonic is redacted by default (encrypted in wallet file, recoverable via portkey-eoa-wallet-backup). IMPORTANT: Do NOT output the mnemonic or password in the channel. Only tell the user to check their local machine.",
+      "description": "Create a new EOA wallet. Password is auto-generated if omitted. Mnemonic is redacted by default (encrypted in wallet file, recoverable via portkey-eoa-wallet-backup). IMPORTANT: Do NOT output the mnemonic in the channel. The auto-generated password MUST be shown to the user so they can save it — without it the wallet cannot be unlocked.",
       "command": "bun",
       "args": ["run", "portkey_eoa_skill.ts", "wallet", "create", "--redact-mnemonic"],
       "cwd": "."
     },
     {
       "name": "portkey-eoa-wallet-import",
-      "description": "Import a wallet from a private key or mnemonic. Password is auto-generated if omitted. IMPORTANT: Do NOT echo the private key or mnemonic back in the channel response.",
+      "description": "Import a wallet from a private key or mnemonic. Password is auto-generated if omitted. IMPORTANT: Do NOT echo the private key or mnemonic back in the channel. The auto-generated password MUST be shown to the user.",
       "command": "bun",
       "args": ["run", "portkey_eoa_skill.ts", "wallet", "import"],
       "cwd": "."
@@ -32,7 +32,7 @@
     },
     {
       "name": "portkey-eoa-wallet-backup",
-      "description": "Export mnemonic and private key (requires password). IMPORTANT: Only output on the user's local machine, NEVER in a channel message.",
+      "description": "Export mnemonic and private key (requires password). IMPORTANT: NEVER output mnemonic or private key in a channel message. Instruct the user to run this command on their local machine instead.",
       "command": "bun",
       "args": ["run", "portkey_eoa_skill.ts", "wallet", "backup"],
       "cwd": "."
