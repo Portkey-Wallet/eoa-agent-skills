@@ -5,8 +5,16 @@ import type { StoredWallet } from './types.js';
 
 const DEFAULT_WALLET_DIR = path.join(os.homedir(), '.portkey', 'eoa', 'wallets');
 
+// Legacy directories from previous versions (newest first)
+const LEGACY_WALLET_DIRS = [
+  path.join(os.homedir(), '.portkey-eoa', 'wallets'),
+  path.join(os.homedir(), '.portkey-agent', 'wallets'),
+];
+
 // aelf addresses are Base58-encoded (1-9, A-Z, a-z excluding 0, O, I, l)
 const AELF_ADDRESS_RE = /^[1-9A-HJ-NP-Za-km-z]{30,60}$/;
+
+let migrationChecked = false;
 
 /**
  * Get the wallet storage directory.
@@ -35,13 +43,58 @@ function safeWalletPath(address: string): string {
 }
 
 /**
+ * Auto-migrate wallet files from legacy directories to the current directory.
+ * Only runs once per process. Copies (does not delete) files from old locations.
+ * Skips files that already exist in the new directory (no overwrite).
+ */
+function migrateFromLegacy(): void {
+  if (migrationChecked) return;
+  migrationChecked = true;
+
+  // Skip migration if user overrode the directory via env
+  if (process.env.PORTKEY_WALLET_DIR) return;
+
+  const targetDir = getWalletDir();
+
+  for (const legacyDir of LEGACY_WALLET_DIRS) {
+    if (!fs.existsSync(legacyDir)) continue;
+
+    const files = fs.readdirSync(legacyDir).filter((f) => f.endsWith('.json'));
+    if (files.length === 0) continue;
+
+    // Ensure target exists before copying
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true, mode: 0o700 });
+    }
+
+    let migrated = 0;
+    for (const file of files) {
+      const dest = path.join(targetDir, file);
+      if (fs.existsSync(dest)) continue; // don't overwrite
+      const src = path.join(legacyDir, file);
+      fs.copyFileSync(src, dest);
+      fs.chmodSync(dest, 0o600);
+      migrated++;
+    }
+
+    if (migrated > 0) {
+      console.error(
+        `[portkey] Migrated ${migrated} wallet(s) from ${legacyDir} → ${targetDir}`,
+      );
+    }
+  }
+}
+
+/**
  * Ensure the wallet directory exists with restricted permissions (0700).
+ * On first call, also checks for legacy directories and auto-migrates.
  */
 function ensureDir(): void {
   const dir = getWalletDir();
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
   }
+  migrateFromLegacy();
 }
 
 /**
