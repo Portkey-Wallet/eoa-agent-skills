@@ -88,4 +88,18 @@ describe('SDK exports', () => {
   test('exports getConfig', () => {
     expect(typeof SDK.getConfig).toBe('function');
   });
+
+  // AelfSigner integration
+  test('exports createSignerFromWallet', () => {
+    expect(typeof SDK.createSignerFromWallet).toBe('function');
+  });
+  test('exports createEoaSigner', () => {
+    expect(typeof SDK.createEoaSigner).toBe('function');
+  });
+  test('exports createSignerFromEnv', () => {
+    expect(typeof SDK.createSignerFromEnv).toBe('function');
+  });
+  test('exports EoaSigner', () => {
+    expect(typeof SDK.EoaSigner).toBe('function');
+  });
 });

@@ -8,6 +8,7 @@ import {
   getWalletInfo,
   listWallets,
   backupWallet,
+  createSignerFromWallet,
 } from '../../src/core/wallet.js';
 import { getConfig } from '../../lib/config.js';
 
@@ -139,5 +140,47 @@ describe('core/wallet', () => {
         password: 'wrong',
       }),
     ).rejects.toThrow();
+  });
+
+  // ============================================================
+  // createSignerFromWallet tests
+  // ============================================================
+
+  test('createSignerFromWallet works with direct privateKey', async () => {
+    const created = await createWallet(config, { password: 'pass' });
+    const backup = await backupWallet(config, {
+      address: created.address,
+      password: 'pass',
+    });
+    const signer = createSignerFromWallet({ privateKey: backup.privateKey });
+    expect(signer).toBeTruthy();
+    expect(signer.address).toBeTruthy();
+    expect(typeof signer.signMessage).toBe('function');
+    expect(typeof signer.sendContractCall).toBe('function');
+  });
+
+  test('createSignerFromWallet works with env fallback', async () => {
+    const created = await createWallet(config, { password: 'pass' });
+    const backup = await backupWallet(config, {
+      address: created.address,
+      password: 'pass',
+    });
+    process.env.PORTKEY_PRIVATE_KEY = backup.privateKey;
+    try {
+      const signer = createSignerFromWallet({});
+      expect(signer).toBeTruthy();
+      expect(signer.address).toBeTruthy();
+      expect(typeof signer.signMessage).toBe('function');
+    } finally {
+      delete process.env.PORTKEY_PRIVATE_KEY;
+    }
+  });
+
+  test('createSignerFromWallet throws without password or key', () => {
+    expect(() =>
+      createSignerFromWallet({
+        address: 'nonExistentAddress12345678901234567890',
+      }),
+    ).toThrow();
   });
 });
