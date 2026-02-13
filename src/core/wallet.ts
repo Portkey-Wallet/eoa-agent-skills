@@ -9,6 +9,7 @@ import type {
   BackupWalletParams,
   BackupWalletResult,
   StoredWallet,
+  WalletPublicInfo,
 } from '../../lib/types.js';
 import { encrypt, decrypt } from '../../lib/crypto.js';
 import {
@@ -123,13 +124,19 @@ export async function getWalletInfo(
 }
 
 // ============================================================
-// listWallets — List all local wallets (public info only)
+// listWallets — List all local wallets (public info only, sanitized)
 // ============================================================
 
 export async function listWallets(
   _config: PortkeyConfig,
-): Promise<StoredWallet[]> {
-  return listStoredWallets();
+): Promise<WalletPublicInfo[]> {
+  return listStoredWallets().map((w) => ({
+    address: w.address,
+    publicKey: w.publicKey,
+    name: w.name,
+    network: w.network,
+    createdAt: w.createdAt,
+  }));
 }
 
 // ============================================================

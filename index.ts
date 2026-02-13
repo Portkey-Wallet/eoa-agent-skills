@@ -50,6 +50,7 @@ export type {
   NetworkType,
   ChainInfo,
   StoredWallet,
+  WalletPublicInfo,
   CreateWalletParams,
   CreateWalletResult,
   ImportWalletParams,

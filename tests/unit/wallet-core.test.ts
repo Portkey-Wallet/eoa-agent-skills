@@ -103,6 +103,24 @@ describe('core/wallet', () => {
     expect(wallets.length).toBe(2);
   });
 
+  test('listWallets returns sanitized public info only', async () => {
+    await createWallet(config, { password: 'pass', name: 'SanitizeTest' });
+    const wallets = await listWallets(config);
+    expect(wallets.length).toBe(1);
+
+    const w = wallets[0] as any;
+    // Should contain public fields
+    expect(w.address).toBeTruthy();
+    expect(w.publicKey).toBeTruthy();
+    expect(w.name).toBe('SanitizeTest');
+    expect(w.network).toBeTruthy();
+    expect(w.createdAt).toBeTruthy();
+
+    // Must NOT contain encrypted secrets
+    expect(w.AESEncryptPrivateKey).toBeUndefined();
+    expect(w.AESEncryptMnemonic).toBeUndefined();
+  });
+
   test('backupWallet returns private key and mnemonic', async () => {
     const created = await createWallet(config, { password: 'pass' });
     const backup = await backupWallet(config, {

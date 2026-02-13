@@ -186,6 +186,10 @@ bun test tests/unit/        # Unit tests
 bun run tests/e2e/mcp-verify.ts  # MCP verification
 ```
 
+## Known Issues
+
+- **elliptic <= 6.6.1**: `aelf-sdk` has a transitive dependency on `elliptic` with a known low-severity vulnerability. This is an upstream issue — tracked for resolution when `aelf-sdk` updates its dependency.
+
 ## License
 
 MIT

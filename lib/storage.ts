@@ -5,6 +5,9 @@ import type { StoredWallet } from './types.js';
 
 const DEFAULT_WALLET_DIR = path.join(os.homedir(), '.portkey-agent', 'wallets');
 
+// aelf addresses are Base58-encoded (1-9, A-Z, a-z excluding 0, O, I, l)
+const AELF_ADDRESS_RE = /^[1-9A-HJ-NP-Za-km-z]{30,60}$/;
+
 /**
  * Get the wallet storage directory.
  * Priority: PORTKEY_WALLET_DIR env > default ~/.portkey-agent/wallets/
@@ -14,36 +17,50 @@ export function getWalletDir(): string {
 }
 
 /**
- * Ensure the wallet directory exists.
+ * Validate an address string and return a safe absolute file path.
+ * Prevents path traversal attacks by:
+ *  1. Checking the address matches the Base58 character set
+ *  2. Verifying the resolved path stays inside the wallet directory
+ */
+function safeWalletPath(address: string): string {
+  if (!address || !AELF_ADDRESS_RE.test(address)) {
+    throw new Error(`Invalid address format: ${address}`);
+  }
+  const dir = path.resolve(getWalletDir());
+  const resolved = path.resolve(dir, `${address}.json`);
+  if (!resolved.startsWith(dir + path.sep) && resolved !== dir) {
+    throw new Error('Path traversal detected');
+  }
+  return resolved;
+}
+
+/**
+ * Ensure the wallet directory exists with restricted permissions (0700).
  */
 function ensureDir(): void {
   const dir = getWalletDir();
   if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+    fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
   }
 }
 
 /**
- * Get the file path for a wallet by address.
- */
-function walletPath(address: string): string {
-  return path.join(getWalletDir(), `${address}.json`);
-}
-
-/**
- * Save a wallet to local storage (encrypted JSON file).
+ * Save a wallet to local storage (encrypted JSON file, mode 0600).
  */
 export function saveWallet(wallet: StoredWallet): void {
   ensureDir();
-  const filePath = walletPath(wallet.address);
-  fs.writeFileSync(filePath, JSON.stringify(wallet, null, 2) + '\n', 'utf-8');
+  const filePath = safeWalletPath(wallet.address);
+  fs.writeFileSync(filePath, JSON.stringify(wallet, null, 2) + '\n', {
+    encoding: 'utf-8',
+    mode: 0o600,
+  });
 }
 
 /**
  * Load a wallet from local storage by address.
  */
 export function loadWallet(address: string): StoredWallet {
-  const filePath = walletPath(address);
+  const filePath = safeWalletPath(address);
   if (!fs.existsSync(filePath)) {
     throw new Error(`Wallet not found: ${address}`);
   }
@@ -52,7 +69,9 @@ export function loadWallet(address: string): StoredWallet {
 }
 
 /**
- * List all locally stored wallets (public info only).
+ * List all locally stored wallets.
+ * Returns full StoredWallet objects (internal use).
+ * Use core/wallet.ts listWallets() for public-facing sanitized output.
  */
 export function listWallets(): StoredWallet[] {
   ensureDir();
@@ -68,7 +87,7 @@ export function listWallets(): StoredWallet[] {
  * Delete a wallet file by address.
  */
 export function deleteWallet(address: string): void {
-  const filePath = walletPath(address);
+  const filePath = safeWalletPath(address);
   if (fs.existsSync(filePath)) {
     fs.unlinkSync(filePath);
   }
@@ -78,5 +97,5 @@ export function deleteWallet(address: string): void {
  * Check if a wallet exists locally.
  */
 export function walletExists(address: string): boolean {
-  return fs.existsSync(walletPath(address));
+  return fs.existsSync(safeWalletPath(address));
 }

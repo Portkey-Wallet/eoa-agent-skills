@@ -32,16 +32,23 @@ interface SendOptions {
 // Wallet helpers
 // ============================================================
 
-/** A common read-only private key used for view-only contract calls. */
-const COMMON_PRIVATE =
+/**
+ * Default read-only private key for view-only contract calls.
+ * Override via PORTKEY_READONLY_PRIVATE_KEY env variable.
+ */
+const DEFAULT_READONLY_PRIVATE_KEY =
   'f6e512a3c259e5f9af981d7f99d245aa5bc52fe448495e0b0dd56e8406be6f71';
+
+function getReadonlyPrivateKey(): string {
+  return process.env.PORTKEY_READONLY_PRIVATE_KEY || DEFAULT_READONLY_PRIVATE_KEY;
+}
 
 /**
  * Create an aelf wallet object from a private key.
- * If no key is provided, uses a common read-only key (for view calls).
+ * If no key is provided, uses a read-only key (for view calls).
  */
 export function getWallet(privateKey?: string): AElfWallet {
-  return AElf.wallet.getWalletByPrivateKey(privateKey || COMMON_PRIVATE);
+  return AElf.wallet.getWalletByPrivateKey(privateKey || getReadonlyPrivateKey());
 }
 
 /**

@@ -45,6 +45,12 @@ export async function eBridgeTransfer(
     spender: params.bridgeContractAddress,
   });
 
+  if (allowanceResult.error) {
+    throw new Error(
+      `GetAllowance failed: ${allowanceResult.error.message || 'Unknown error'}`,
+    );
+  }
+
   const currentAllowance = BigInt(
     allowanceResult.data?.allowance || allowanceResult.data?.Allowance || '0',
   );

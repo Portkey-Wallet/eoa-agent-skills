@@ -38,6 +38,18 @@ export interface StoredWallet {
   network: string;
 }
 
+/**
+ * Public-facing wallet info (no secrets).
+ * Used by listWallets and getWalletInfo to avoid leaking encrypted credentials.
+ */
+export interface WalletPublicInfo {
+  address: string;
+  publicKey: { x: string; y: string };
+  name: string;
+  network: string;
+  createdAt: string;
+}
+
 export interface CreateWalletParams {
   name?: string;
   password: string;

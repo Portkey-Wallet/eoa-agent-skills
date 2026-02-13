@@ -11,6 +11,10 @@ import {
 } from '../../lib/storage.js';
 import type { StoredWallet } from '../../lib/types.js';
 
+// Valid Base58 aelf-style addresses (30-60 chars, no 0/O/I/l)
+const VALID_ADDR_1 = '2RHSoUFr3gXFn7HRUQBYN8dVqAYVYBQg15fZ7P4dF3wMFm';
+const VALID_ADDR_2 = 'JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvo';
+
 describe('storage', () => {
   const testDir = path.join(os.tmpdir(), 'portkey-agent-test-' + Date.now());
 
@@ -30,7 +34,7 @@ describe('storage', () => {
 
   const mockWallet: StoredWallet = {
     name: 'Test Wallet',
-    address: 'testAddress123',
+    address: VALID_ADDR_1,
     publicKey: { x: 'abc', y: 'def' },
     AESEncryptPrivateKey: 'encrypted_pk',
     AESEncryptMnemonic: 'encrypted_mnemonic',
@@ -53,12 +57,12 @@ describe('storage', () => {
   });
 
   test('loadWallet throws for non-existent wallet', () => {
-    expect(() => loadWallet('nonexistent')).toThrow('Wallet not found');
+    expect(() => loadWallet(VALID_ADDR_2)).toThrow('Wallet not found');
   });
 
   test('listWallets returns all wallets', () => {
     saveWallet(mockWallet);
-    saveWallet({ ...mockWallet, address: 'addr2', name: 'Wallet 2' });
+    saveWallet({ ...mockWallet, address: VALID_ADDR_2, name: 'Wallet 2' });
     const wallets = listWallets();
     expect(wallets.length).toBe(2);
   });
@@ -74,5 +78,50 @@ describe('storage', () => {
     expect(walletExists(mockWallet.address)).toBe(false);
     saveWallet(mockWallet);
     expect(walletExists(mockWallet.address)).toBe(true);
+  });
+
+  // ============================================================
+  // Path traversal prevention tests
+  // ============================================================
+
+  test('rejects path traversal with ../', () => {
+    expect(() => loadWallet('../../etc/passwd')).toThrow('Invalid address format');
+  });
+
+  test('rejects path traversal with encoded slashes', () => {
+    expect(() => loadWallet('foo/bar')).toThrow('Invalid address format');
+  });
+
+  test('rejects empty address', () => {
+    expect(() => loadWallet('')).toThrow('Invalid address format');
+  });
+
+  test('rejects address with special characters', () => {
+    expect(() => loadWallet('addr@#$%^&*()')).toThrow('Invalid address format');
+  });
+
+  test('rejects address too short (< 30 chars)', () => {
+    expect(() => loadWallet('shortAddr')).toThrow('Invalid address format');
+  });
+
+  test('rejects address with forbidden Base58 chars (0, O, I, l)', () => {
+    // 'O' is not in Base58 alphabet
+    expect(() =>
+      loadWallet('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO'),
+    ).toThrow('Invalid address format');
+  });
+
+  test('rejects save with traversal address', () => {
+    expect(() =>
+      saveWallet({ ...mockWallet, address: '../../../tmp/evil' }),
+    ).toThrow('Invalid address format');
+  });
+
+  test('rejects delete with traversal address', () => {
+    expect(() => deleteWallet('../../etc/shadow')).toThrow('Invalid address format');
+  });
+
+  test('rejects walletExists with traversal address', () => {
+    expect(() => walletExists('../secret')).toThrow('Invalid address format');
   });
 });

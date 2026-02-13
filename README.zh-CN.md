@@ -186,6 +186,10 @@ bun test tests/unit/        # 单元测试
 bun run tests/e2e/mcp-verify.ts  # MCP 验证
 ```
 
+## Known Issues
+
+- **elliptic <= 6.6.1**：`aelf-sdk` 的传递依赖 `elliptic` 存在一个 low 级别漏洞，属上游问题，等待 `aelf-sdk` 更新修复。
+
 ## License
 
 MIT

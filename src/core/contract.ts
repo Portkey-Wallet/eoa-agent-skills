@@ -152,17 +152,30 @@ export async function estimateTransactionFee(
     );
   }
 
-  // Calculate fee via RPC
-  const res = await fetch(
-    `${rpcUrl}/api/blockChain/calculateTransactionFee`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ RawTransaction: rawResult.data }),
-    },
-  );
-
-  const txFee = await res.json();
+  // Calculate fee via RPC (with timeout and status check)
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 30000);
+  let txFee: any;
+  try {
+    const res = await fetch(
+      `${rpcUrl}/api/blockChain/calculateTransactionFee`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ RawTransaction: rawResult.data }),
+        signal: controller.signal,
+      },
+    );
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(
+        `RPC error ${res.status}: ${text || res.statusText}`,
+      );
+    }
+    txFee = await res.json();
+  } finally {
+    clearTimeout(timer);
+  }
   if (!txFee?.Success) {
     throw new Error('Failed to calculate transaction fee');
   }
