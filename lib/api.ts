@@ -1,4 +1,5 @@
 import type { PortkeyConfig, AddressInfo } from './types.js';
+import { getAelfAddress, getChainIdFromAddress } from './aelf.js';
 
 const DEFAULT_TIMEOUT = 30000;
 
@@ -62,11 +63,15 @@ async function request<T>(
 // ============================================================
 
 function buildAddressInfos(
-  address: string,
+  rawAddress: string,
   chainId?: string,
 ): AddressInfo[] {
-  if (chainId) {
-    return [{ chainId, address }];
+  // Strip ELF_xxx_ChainId format → raw address, and extract chainId if embedded
+  const address = getAelfAddress(rawAddress);
+  const resolvedChainId = chainId || getChainIdFromAddress(rawAddress);
+
+  if (resolvedChainId) {
+    return [{ chainId: resolvedChainId, address }];
   }
   // If no specific chainId, include common aelf chains
   return [
