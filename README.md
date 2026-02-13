@@ -1,5 +1,7 @@
 # @portkey/eoa-agent-skills
 
+[中文版](./README.zh-CN.md) | English
+
 AI Agent Skills for Portkey EOA Wallet on [aelf blockchain](https://aelf.com). Provides MCP, CLI, and SDK interfaces for wallet management, token transfers, asset queries, and smart contract interactions.
 
 ## Features
