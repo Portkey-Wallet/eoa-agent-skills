@@ -16,6 +16,11 @@ const AELF_ADDRESS_RE = /^[1-9A-HJ-NP-Za-km-z]{30,60}$/;
 
 let migrationChecked = false;
 
+/** Reset migration flag (for testing only). */
+export function _resetMigrationFlag(): void {
+  migrationChecked = false;
+}
+
 /**
  * Get the wallet storage directory.
  * Priority: PORTKEY_WALLET_DIR env > default ~/.portkey/eoa/wallets/
@@ -113,6 +118,7 @@ export function saveWallet(wallet: StoredWallet): void {
  * Load a wallet from local storage by address.
  */
 export function loadWallet(address: string): StoredWallet {
+  ensureDir();
   const filePath = safeWalletPath(address);
   if (!fs.existsSync(filePath)) {
     throw new Error(`Wallet not found: ${address}`);
@@ -140,6 +146,7 @@ export function listWallets(): StoredWallet[] {
  * Delete a wallet file by address.
  */
 export function deleteWallet(address: string): void {
+  ensureDir();
   const filePath = safeWalletPath(address);
   if (fs.existsSync(filePath)) {
     fs.unlinkSync(filePath);
@@ -150,5 +157,6 @@ export function deleteWallet(address: string): void {
  * Check if a wallet exists locally.
  */
 export function walletExists(address: string): boolean {
+  ensureDir();
   return fs.existsSync(safeWalletPath(address));
 }
