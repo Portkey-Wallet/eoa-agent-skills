@@ -52,16 +52,20 @@ export interface WalletPublicInfo {
 
 export interface CreateWalletParams {
   name?: string;
-  password: string;
+  password?: string; // optional — auto-generated if omitted
+  redactMnemonic?: boolean; // if true, mnemonic saved to local file instead of returned
 }
 
 export interface CreateWalletResult {
   address: string;
-  mnemonic: string;
+  mnemonic?: string; // omitted when redactMnemonic is true
+  mnemonicSavedTo?: string; // file path when redactMnemonic is true
+  passwordGenerated?: boolean; // true if password was auto-generated
+  password?: string; // included only when auto-generated
 }
 
 export interface ImportWalletParams {
-  password: string;
+  password?: string; // optional — auto-generated if omitted
   mnemonic?: string;
   privateKey?: string;
   name?: string;
@@ -69,6 +73,8 @@ export interface ImportWalletParams {
 
 export interface ImportWalletResult {
   address: string;
+  passwordGenerated?: boolean; // true if password was auto-generated
+  password?: string; // included only when auto-generated
 }
 
 export interface GetWalletInfoParams {

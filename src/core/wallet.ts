@@ -11,14 +11,17 @@ import type {
   StoredWallet,
   WalletPublicInfo,
 } from '../../lib/types.js';
-import { encrypt, decrypt } from '../../lib/crypto.js';
+import { encrypt, decrypt, generateStrongPassword } from '../../lib/crypto.js';
 import {
   saveWallet,
   loadWallet,
   listWallets as listStoredWallets,
   walletExists,
   deleteWallet as deleteStoredWallet,
+  getWalletDir,
 } from '../../lib/storage.js';
+import * as fs from 'fs';
+import * as path from 'path';
 import {
   createNewWallet,
   getWalletByMnemonic,
@@ -33,8 +36,9 @@ export async function createWallet(
   config: PortkeyConfig,
   params: CreateWalletParams,
 ): Promise<CreateWalletResult> {
-  const { password, name } = params;
-  if (!password) throw new Error('password is required');
+  const { name, redactMnemonic } = params;
+  const passwordGenerated = !params.password;
+  const password = params.password || generateStrongPassword();
 
   const walletInfo = createNewWallet();
 
@@ -52,10 +56,25 @@ export async function createWallet(
 
   saveWallet(stored);
 
-  return {
+  const result: CreateWalletResult = {
     address: walletInfo.address,
-    mnemonic: walletInfo.mnemonic || '',
   };
+
+  // Mnemonic handling: redact or return
+  if (redactMnemonic && walletInfo.mnemonic) {
+    const savedTo = saveMnemonicToFile(walletInfo.address, walletInfo.mnemonic);
+    result.mnemonicSavedTo = savedTo;
+  } else {
+    result.mnemonic = walletInfo.mnemonic || '';
+  }
+
+  // Password: include in result only when auto-generated
+  if (passwordGenerated) {
+    result.passwordGenerated = true;
+    result.password = password;
+  }
+
+  return result;
 }
 
 // ============================================================
@@ -66,8 +85,10 @@ export async function importWallet(
   config: PortkeyConfig,
   params: ImportWalletParams,
 ): Promise<ImportWalletResult> {
-  const { password, mnemonic, privateKey, name } = params;
-  if (!password) throw new Error('password is required');
+  const { mnemonic, privateKey, name } = params;
+  const passwordGenerated = !params.password;
+  const password = params.password || generateStrongPassword();
+
   if (!mnemonic && !privateKey) {
     throw new Error('Either mnemonic or privateKey is required');
   }
@@ -103,7 +124,12 @@ export async function importWallet(
 
   saveWallet(stored);
 
-  return { address: walletInfo.address };
+  const result: ImportWalletResult = { address: walletInfo.address };
+  if (passwordGenerated) {
+    result.passwordGenerated = true;
+    result.password = password;
+  }
+  return result;
 }
 
 // ============================================================
@@ -224,4 +250,22 @@ function extractPublicKey(walletInfo: any): { x: string; y: string } {
   } catch {
     return { x: '', y: '' };
   }
+}
+
+/**
+ * Save mnemonic to a local file (for redactMnemonic mode).
+ * File is written with 0600 permissions and stored alongside wallet files.
+ */
+function saveMnemonicToFile(address: string, mnemonic: string): string {
+  const dir = path.join(getWalletDir(), '..', 'mnemonics');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+  }
+  const filePath = path.join(dir, `${address}.txt`);
+  fs.writeFileSync(
+    filePath,
+    `# Mnemonic for ${address}\n# Created: ${new Date().toISOString()}\n# DELETE THIS FILE after you have safely backed up the mnemonic.\n\n${mnemonic}\n`,
+    { encoding: 'utf-8', mode: 0o600 },
+  );
+  return filePath;
 }

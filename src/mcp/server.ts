@@ -73,22 +73,34 @@ server.registerTool(
   'portkey_create_wallet',
   {
     description:
-      'Create a new EOA wallet on aelf blockchain. Generates a mnemonic and private key, encrypts them with the provided password, and stores the wallet locally. Use when a user needs a fresh wallet. Returns address and mnemonic (save the mnemonic — it cannot be recovered).',
+      'Create a new EOA wallet on aelf blockchain. Generates a mnemonic and private key, encrypts them with a password, and stores the wallet locally.\n\nPassword behavior: If password is omitted, a strong password is auto-generated and returned in the response. After creation, ask the user if they want to persist the password by setting PORTKEY_WALLET_PASSWORD in their environment config. If they decline, remind them to save the password securely — it cannot be recovered.\n\nMnemonic safety: For channel-based environments (Slack, Discord, OpenClaw channels), set redactMnemonic=true so the mnemonic is saved to a local file instead of being returned in the conversation. For local AI tools (Claude Desktop, Cursor), returning the mnemonic directly is acceptable.',
     inputSchema: {
       name: z.string().optional().describe('Human-readable wallet name'),
       password: z
         .string()
-        .describe('Password to encrypt the wallet private key and mnemonic'),
+        .optional()
+        .describe(
+          'Password to encrypt the wallet. If omitted, a strong password is auto-generated.',
+        ),
+      redactMnemonic: z
+        .boolean()
+        .optional()
+        .default(false)
+        .describe(
+          'If true, mnemonic is saved to a local file instead of returned in the response. Use for channel-based environments (Slack, Discord, OpenClaw) to prevent mnemonic leakage.',
+        ),
       network: z
         .enum(['mainnet'])
         .default('mainnet')
         .describe('Network (mainnet)'),
     },
   },
-  async ({ name, password, network }) => {
+  async ({ name, password, redactMnemonic, network }) => {
     try {
       const config = getConfig(network);
-      return ok(await createWallet(config, { name, password }));
+      return ok(
+        await createWallet(config, { name, password, redactMnemonic }),
+      );
     } catch (err) {
       return fail(err);
     }
@@ -99,7 +111,7 @@ server.registerTool(
   'portkey_import_wallet',
   {
     description:
-      'Import an existing wallet using a 12-word mnemonic phrase or a 64-character hex private key. Encrypts and stores the wallet locally. Use when a user wants to use an existing wallet.',
+      'Import an existing wallet using a 12-word mnemonic phrase or a 64-character hex private key. Encrypts and stores the wallet locally.\n\nPassword behavior: If password is omitted, a strong password is auto-generated and returned. After import, ask the user if they want to persist the password by setting PORTKEY_WALLET_PASSWORD in their environment. If they decline, remind them to save it securely.\n\nSecurity: Never echo the user\'s mnemonic or private key back in channel-based conversations (Slack, Discord, OpenClaw).',
     inputSchema: {
       mnemonic: z
         .string()
@@ -111,7 +123,10 @@ server.registerTool(
         .describe('64-character hex private key (with or without 0x prefix)'),
       password: z
         .string()
-        .describe('Password to encrypt the wallet'),
+        .optional()
+        .describe(
+          'Password to encrypt the wallet. If omitted, a strong password is auto-generated.',
+        ),
       name: z.string().optional().describe('Human-readable wallet name'),
       network: z
         .enum(['mainnet'])

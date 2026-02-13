@@ -46,14 +46,16 @@ const wallet = program.command('wallet').description('Wallet management');
 wallet
   .command('create')
   .description('Create a new wallet')
-  .requiredOption('--password <password>', 'Encryption password')
+  .option('--password <password>', 'Encryption password (auto-generated if omitted)')
   .option('--name <name>', 'Wallet name')
+  .option('--redact-mnemonic', 'Save mnemonic to local file instead of printing')
   .action(async (opts) => {
     try {
       const config = getConfig(program.opts().network);
       const result = await createWallet(config, {
         password: opts.password,
         name: opts.name,
+        redactMnemonic: opts.redactMnemonic,
       });
       outputSuccess(result);
     } catch (err: any) {
@@ -64,7 +66,7 @@ wallet
 wallet
   .command('import')
   .description('Import a wallet from mnemonic or private key')
-  .requiredOption('--password <password>', 'Encryption password')
+  .option('--password <password>', 'Encryption password (auto-generated if omitted)')
   .option('--mnemonic <mnemonic>', '12-word mnemonic phrase')
   .option('--private-key <key>', '64-char hex private key')
   .option('--name <name>', 'Wallet name')

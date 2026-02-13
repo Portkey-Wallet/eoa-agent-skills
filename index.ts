@@ -45,6 +45,9 @@ export {
 // Config
 export { getConfig } from './lib/config.js';
 
+// Crypto utilities
+export { generateStrongPassword } from './lib/crypto.js';
+
 // Types
 export type {
   PortkeyConfig,

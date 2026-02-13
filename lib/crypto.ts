@@ -1,4 +1,22 @@
 import AElf from 'aelf-sdk';
+import { randomBytes } from 'crypto';
+
+const PASSWORD_LENGTH = 24;
+const PASSWORD_CHARSET =
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*_+-=';
+
+/**
+ * Generate a cryptographically strong random password.
+ * 24 chars from a 74-char alphabet ≈ 148 bits of entropy.
+ */
+export function generateStrongPassword(): string {
+  const bytes = randomBytes(PASSWORD_LENGTH);
+  let password = '';
+  for (let i = 0; i < PASSWORD_LENGTH; i++) {
+    password += PASSWORD_CHARSET[bytes[i] % PASSWORD_CHARSET.length];
+  }
+  return password;
+}
 
 /**
  * AES encrypt a string using aelf-sdk's built-in AES.
