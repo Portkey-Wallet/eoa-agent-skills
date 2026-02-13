@@ -62,7 +62,7 @@ cp .env.example .env
 | `PORTKEY_NETWORK` | `mainnet` | `mainnet` |
 | `PORTKEY_API_URL` | 覆盖 API 基础 URL | 根据网络自动选择 |
 | `PORTKEY_PRIVATE_KEY` | 明文私钥（可选） | — |
-| `PORTKEY_WALLET_DIR` | 自定义钱包存储目录 | `~/.portkey-eoa/wallets/` |
+| `PORTKEY_WALLET_DIR` | 自定义钱包存储目录 | `~/.portkey/eoa/wallets/` |
 | `PORTKEY_WALLET_PASSWORD` | 本地钱包加密密码 | — |
 
 ### MCP Server

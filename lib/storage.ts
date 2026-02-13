@@ -3,14 +3,14 @@ import * as path from 'path';
 import * as os from 'os';
 import type { StoredWallet } from './types.js';
 
-const DEFAULT_WALLET_DIR = path.join(os.homedir(), '.portkey-eoa', 'wallets');
+const DEFAULT_WALLET_DIR = path.join(os.homedir(), '.portkey', 'eoa', 'wallets');
 
 // aelf addresses are Base58-encoded (1-9, A-Z, a-z excluding 0, O, I, l)
 const AELF_ADDRESS_RE = /^[1-9A-HJ-NP-Za-km-z]{30,60}$/;
 
 /**
  * Get the wallet storage directory.
- * Priority: PORTKEY_WALLET_DIR env > default ~/.portkey-eoa/wallets/
+ * Priority: PORTKEY_WALLET_DIR env > default ~/.portkey/eoa/wallets/
  */
 export function getWalletDir(): string {
   return process.env.PORTKEY_WALLET_DIR || DEFAULT_WALLET_DIR;
