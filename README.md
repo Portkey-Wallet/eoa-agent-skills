@@ -62,7 +62,7 @@ cp .env.example .env
 | `PORTKEY_NETWORK` | `mainnet` | `mainnet` |
 | `PORTKEY_API_URL` | Override API base URL | Auto from network |
 | `PORTKEY_PRIVATE_KEY` | Plaintext private key (optional) | — |
-| `PORTKEY_WALLET_DIR` | Custom wallet storage directory | `~/.portkey-agent/wallets/` |
+| `PORTKEY_WALLET_DIR` | Custom wallet storage directory | `~/.portkey-eoa/wallets/` |
 | `PORTKEY_WALLET_PASSWORD` | Password for local wallet encryption | — |
 
 ### MCP Server

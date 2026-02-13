@@ -16,7 +16,7 @@ const VALID_ADDR_1 = '2RHSoUFr3gXFn7HRUQBYN8dVqAYVYBQg15fZ7P4dF3wMFm';
 const VALID_ADDR_2 = 'JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvo';
 
 describe('storage', () => {
-  const testDir = path.join(os.tmpdir(), 'portkey-agent-test-' + Date.now());
+  const testDir = path.join(os.tmpdir(), 'portkey-eoa-test-' + Date.now());
 
   beforeEach(() => {
     process.env.PORTKEY_WALLET_DIR = testDir;

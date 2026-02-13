@@ -24,7 +24,7 @@ Thumbs.db
 *.log
 
 # Local wallet storage (NEVER commit wallet files)
-.portkey-agent/
+.portkey-eoa/
 
 # Bun
 bun.lockb
