@@ -73,7 +73,7 @@ server.registerTool(
   'portkey_create_wallet',
   {
     description:
-      'Create a new EOA wallet on aelf blockchain. Generates a mnemonic and private key, encrypts them with a password, and stores the wallet locally.\n\nPassword behavior: If password is omitted, a strong password is auto-generated and returned in the response. After creation, ask the user if they want to persist the password by setting PORTKEY_WALLET_PASSWORD in their environment config. If they decline, remind them to save the password securely — it cannot be recovered.\n\nMnemonic safety: For channel-based environments (Slack, Discord, OpenClaw channels), set redactMnemonic=true so the mnemonic is saved to a local file instead of being returned in the conversation. For local AI tools (Claude Desktop, Cursor), returning the mnemonic directly is acceptable.',
+      'Create a new EOA wallet on aelf blockchain. Generates a mnemonic and private key, encrypts them with a password, and stores the wallet locally.\n\nPassword behavior: If password is omitted, a strong password is auto-generated and returned in the response. After creation, ask the user if they want to persist the password by setting PORTKEY_WALLET_PASSWORD in their environment config. If they decline, remind them to save the password securely — it cannot be recovered.\n\nMnemonic safety: For channel-based environments (Slack, Discord, OpenClaw channels), set redactMnemonic=true so the mnemonic is NOT returned in the response. The mnemonic is already AES-encrypted in the wallet file and can be recovered later via wallet backup with the correct password. For local AI tools (Claude Desktop, Cursor), returning the mnemonic directly is acceptable.',
     inputSchema: {
       name: z.string().optional().describe('Human-readable wallet name'),
       password: z
@@ -87,7 +87,7 @@ server.registerTool(
         .optional()
         .default(false)
         .describe(
-          'If true, mnemonic is saved to a local file instead of returned in the response. Use for channel-based environments (Slack, Discord, OpenClaw) to prevent mnemonic leakage.',
+          'If true, mnemonic is NOT returned in the response (it is already AES-encrypted in the wallet file, recoverable via wallet backup). Use for channel-based environments (Slack, Discord, OpenClaw) to prevent mnemonic leakage.',
         ),
       network: z
         .enum(['mainnet'])

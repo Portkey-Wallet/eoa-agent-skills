@@ -53,13 +53,13 @@ export interface WalletPublicInfo {
 export interface CreateWalletParams {
   name?: string;
   password?: string; // optional — auto-generated if omitted
-  redactMnemonic?: boolean; // if true, mnemonic saved to local file instead of returned
+  redactMnemonic?: boolean; // if true, mnemonic is NOT returned (already encrypted in wallet file, recoverable via wallet backup)
 }
 
 export interface CreateWalletResult {
   address: string;
   mnemonic?: string; // omitted when redactMnemonic is true
-  mnemonicSavedTo?: string; // file path when redactMnemonic is true
+  mnemonicHint?: string; // recovery guidance when mnemonic is redacted
   passwordGenerated?: boolean; // true if password was auto-generated
   password?: string; // included only when auto-generated
 }

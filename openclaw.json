@@ -1,17 +1,52 @@
 {
   "name": "portkey-eoa-agent-skills",
-  "description": "AI Agent Skills for Portkey EOA Wallet on aelf blockchain",
+  "description": "AI Agent Skills for Portkey EOA Wallet on aelf blockchain. SECURITY: Never output mnemonic phrases, private keys, or passwords in channel messages. Use --redact-mnemonic for wallet creation. Sensitive data is encrypted locally and recoverable via wallet backup command.",
   "tools": [
     {
       "name": "portkey-eoa-wallet-create",
-      "description": "Create a new EOA wallet",
+      "description": "Create a new EOA wallet. Password is auto-generated if omitted. Mnemonic is redacted by default (encrypted in wallet file, recoverable via portkey-eoa-wallet-backup). IMPORTANT: Do NOT output the mnemonic or password in the channel. Only tell the user to check their local machine.",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "wallet", "create"],
+      "args": ["run", "portkey_eoa_skill.ts", "wallet", "create", "--redact-mnemonic"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-wallet-import",
+      "description": "Import a wallet from a private key or mnemonic. Password is auto-generated if omitted. IMPORTANT: Do NOT echo the private key or mnemonic back in the channel response.",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "wallet", "import"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-wallet-list",
+      "description": "List all locally stored wallets (public info only: address, name, network)",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "wallet", "list"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-wallet-info",
+      "description": "Get public info for a specific wallet",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "wallet", "info"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-wallet-backup",
+      "description": "Export mnemonic and private key (requires password). IMPORTANT: Only output on the user's local machine, NEVER in a channel message.",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "wallet", "backup"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-wallet-delete",
+      "description": "Delete a locally stored wallet (requires password verification)",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "wallet", "delete"],
       "cwd": "."
     },
     {
       "name": "portkey-eoa-query-tokens",
-      "description": "Get token list with balances",
+      "description": "Get token list with balances for a wallet address",
       "command": "bun",
       "args": ["run", "portkey_eoa_skill.ts", "query", "tokens"],
       "cwd": "."
@@ -24,17 +59,52 @@
       "cwd": "."
     },
     {
+      "name": "portkey-eoa-query-price",
+      "description": "Get token prices in USD",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "query", "price"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-query-nft-collections",
+      "description": "Get NFT collections for a wallet",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "query", "nft-collections"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-query-nft-items",
+      "description": "Get NFT items in a collection",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "query", "nft-items"],
+      "cwd": "."
+    },
+    {
       "name": "portkey-eoa-query-history",
-      "description": "Get transaction history",
+      "description": "Get transaction history for a wallet",
       "command": "bun",
       "args": ["run", "portkey_eoa_skill.ts", "query", "history"],
       "cwd": "."
     },
     {
+      "name": "portkey-eoa-query-tx",
+      "description": "Get transaction detail by ID",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "query", "tx"],
+      "cwd": "."
+    },
+    {
       "name": "portkey-eoa-transfer",
-      "description": "Send a token transfer",
+      "description": "Send a same-chain token transfer",
       "command": "bun",
       "args": ["run", "portkey_eoa_skill.ts", "transfer"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-cross-chain-transfer",
+      "description": "Send a cross-chain token transfer between aelf chains",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "transfer", "--cross-chain"],
       "cwd": "."
     },
     {
@@ -42,6 +112,41 @@
       "description": "Call a read-only contract method",
       "command": "bun",
       "args": ["run", "portkey_eoa_skill.ts", "contract", "view"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-contract-send",
+      "description": "Call a state-changing contract method (requires wallet)",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "contract", "send"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-contract-approve",
+      "description": "Approve token spending allowance",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "contract", "approve"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-contract-estimate-fee",
+      "description": "Estimate transaction fee before sending",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "contract", "estimate-fee"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-ebridge-transfer",
+      "description": "Cross-chain transfer via eBridge (aelf <-> EVM)",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "ebridge", "transfer"],
+      "cwd": "."
+    },
+    {
+      "name": "portkey-eoa-ebridge-limit",
+      "description": "Query eBridge transfer limits",
+      "command": "bun",
+      "args": ["run", "portkey_eoa_skill.ts", "ebridge", "limit"],
       "cwd": "."
     }
   ]

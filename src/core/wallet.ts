@@ -18,10 +18,7 @@ import {
   listWallets as listStoredWallets,
   walletExists,
   deleteWallet as deleteStoredWallet,
-  getWalletDir,
 } from '../../lib/storage.js';
-import * as fs from 'fs';
-import * as path from 'path';
 import {
   createNewWallet,
   getWalletByMnemonic,
@@ -61,9 +58,14 @@ export async function createWallet(
   };
 
   // Mnemonic handling: redact or return
-  if (redactMnemonic && walletInfo.mnemonic) {
-    const savedTo = saveMnemonicToFile(walletInfo.address, walletInfo.mnemonic);
-    result.mnemonicSavedTo = savedTo;
+  // When redacted, mnemonic is NOT returned — it's already AES-encrypted in the wallet file
+  // and can be recovered via `wallet backup --address <addr> --password <pwd>`
+  if (redactMnemonic) {
+    result.mnemonicHint =
+      'Mnemonic is encrypted and stored in your wallet file. ' +
+      'To recover it, run: wallet backup --address ' +
+      walletInfo.address +
+      ' --password <your_password>';
   } else {
     result.mnemonic = walletInfo.mnemonic || '';
   }
@@ -252,20 +254,3 @@ function extractPublicKey(walletInfo: any): { x: string; y: string } {
   }
 }
 
-/**
- * Save mnemonic to a local file (for redactMnemonic mode).
- * File is written with 0600 permissions and stored alongside wallet files.
- */
-function saveMnemonicToFile(address: string, mnemonic: string): string {
-  const dir = path.join(getWalletDir(), '..', 'mnemonics');
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
-  }
-  const filePath = path.join(dir, `${address}.txt`);
-  fs.writeFileSync(
-    filePath,
-    `# Mnemonic for ${address}\n# Created: ${new Date().toISOString()}\n# DELETE THIS FILE after you have safely backed up the mnemonic.\n\n${mnemonic}\n`,
-    { encoding: 'utf-8', mode: 0o600 },
-  );
-  return filePath;
-}
