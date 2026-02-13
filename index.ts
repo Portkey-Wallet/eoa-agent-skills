@@ -7,6 +7,7 @@ export {
   getWalletInfo,
   listWallets,
   backupWallet,
+  deleteWalletByAddress,
   resolvePrivateKey,
 } from './src/core/wallet.js';
 

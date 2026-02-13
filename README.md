@@ -136,14 +136,15 @@ const result = await transfer(config, {
 console.log('TX:', result.transactionId);
 ```
 
-## MCP Tools (20 total)
+## MCP Tools (21 total)
 
-### Wallet Management (5)
+### Wallet Management (6)
 - `portkey_create_wallet` — Create new wallet with encrypted local storage
 - `portkey_import_wallet` — Import from mnemonic or private key
 - `portkey_get_wallet_info` — View wallet public info
 - `portkey_list_wallets` — List all local wallets
 - `portkey_backup_wallet` — Export wallet credentials
+- `portkey_delete_wallet` — Delete a local wallet (requires password)
 
 ### Asset Queries (7)
 - `portkey_get_token_list` — Token portfolio with balances

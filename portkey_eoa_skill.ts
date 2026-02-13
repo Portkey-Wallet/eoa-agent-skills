@@ -9,6 +9,7 @@ import {
   getWalletInfo,
   listWallets,
   backupWallet,
+  deleteWalletByAddress,
 } from './src/core/wallet.js';
 import {
   getChainInfo,
@@ -118,6 +119,24 @@ wallet
     try {
       const config = getConfig(program.opts().network);
       const result = await backupWallet(config, {
+        address: opts.address,
+        password: opts.password,
+      });
+      outputSuccess(result);
+    } catch (err: any) {
+      outputError(err.message);
+    }
+  });
+
+wallet
+  .command('delete')
+  .description('Delete a locally stored wallet (requires password verification)')
+  .requiredOption('--address <address>', 'Wallet address to delete')
+  .requiredOption('--password <password>', 'Wallet password (for verification)')
+  .action(async (opts) => {
+    try {
+      const config = getConfig(program.opts().network);
+      const result = await deleteWalletByAddress(config, {
         address: opts.address,
         password: opts.password,
       });

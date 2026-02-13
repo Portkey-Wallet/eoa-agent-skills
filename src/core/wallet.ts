@@ -17,6 +17,7 @@ import {
   loadWallet,
   listWallets as listStoredWallets,
   walletExists,
+  deleteWallet as deleteStoredWallet,
 } from '../../lib/storage.js';
 import {
   createNewWallet,
@@ -137,6 +138,25 @@ export async function listWallets(
     network: w.network,
     createdAt: w.createdAt,
   }));
+}
+
+// ============================================================
+// deleteWallet — Remove a locally stored wallet
+// ============================================================
+
+export async function deleteWalletByAddress(
+  _config: PortkeyConfig,
+  params: { address: string; password: string },
+): Promise<{ address: string; deleted: boolean }> {
+  const { address, password } = params;
+  if (!password) throw new Error('password is required');
+
+  // Verify password is correct before deleting
+  const stored = loadWallet(address);
+  decrypt(stored.AESEncryptPrivateKey, password);
+
+  deleteStoredWallet(address);
+  return { address, deleted: true };
 }
 
 // ============================================================

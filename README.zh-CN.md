@@ -136,14 +136,15 @@ const result = await transfer(config, {
 console.log('交易ID:', result.transactionId);
 ```
 
-## MCP Tools（共 20 个）
+## MCP Tools（共 21 个）
 
-### 钱包管理（5）
+### 钱包管理（6）
 - `portkey_create_wallet` — 创建新钱包并加密存储
 - `portkey_import_wallet` — 导入钱包（助记词/私钥）
 - `portkey_get_wallet_info` — 查看钱包公开信息
 - `portkey_list_wallets` — 列出所有本地钱包
 - `portkey_backup_wallet` — 导出钱包凭证
+- `portkey_delete_wallet` — 删除本地钱包（需密码验证）
 
 ### 资产查询（7）
 - `portkey_get_token_list` — Token 列表和余额

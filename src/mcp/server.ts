@@ -11,6 +11,7 @@ import {
   getWalletInfo,
   listWallets,
   backupWallet,
+  deleteWalletByAddress,
 } from '../core/wallet.js';
 import {
   getChainInfo,
@@ -65,7 +66,7 @@ function fail(err: any) {
 }
 
 // ============================================================
-// Wallet Management Tools (5)
+// Wallet Management Tools (6)
 // ============================================================
 
 server.registerTool(
@@ -193,6 +194,34 @@ server.registerTool(
     try {
       const config = getConfig(network);
       return ok(await backupWallet(config, { address, password }));
+    } catch (err) {
+      return fail(err);
+    }
+  },
+);
+
+server.registerTool(
+  'portkey_delete_wallet',
+  {
+    description:
+      'Delete a locally stored wallet file. Requires the wallet password for verification — the password must be correct before the wallet is removed. Use when a user explicitly wants to remove a wallet from local storage.',
+    inputSchema: {
+      address: z.string().describe('Wallet address to delete'),
+      password: z
+        .string()
+        .describe('Wallet password (must be correct to authorize deletion)'),
+      network: z
+        .enum(['mainnet'])
+        .default('mainnet')
+        .describe('Network (mainnet)'),
+    },
+  },
+  async ({ address, password, network }) => {
+    try {
+      const config = getConfig(network);
+      return ok(
+        await deleteWalletByAddress(config, { address, password }),
+      );
     } catch (err) {
       return fail(err);
     }
