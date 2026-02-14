@@ -25,6 +25,10 @@
     "README.zh-CN.md",
     "LICENSE"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Portkey-Wallet/eoa-agent-skills.git"
+  },
   "publishConfig": {
     "access": "public"
   },
