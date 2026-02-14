@@ -9,8 +9,8 @@
     "./mcp": "./src/mcp/server.ts"
   },
   "bin": {
-    "portkey-eoa": "./portkey_eoa_skill.ts",
-    "portkey-setup": "./bin/setup.ts"
+    "portkey-eoa": "./portkey_eoa_skill.js",
+    "portkey-setup": "./bin/setup.js"
   },
   "files": [
     "index.ts",
@@ -19,6 +19,7 @@
     "bin/",
     "cli-helpers.ts",
     "portkey_eoa_skill.ts",
+    "portkey_eoa_skill.js",
     "openclaw.json",
     "mcp-config.example.json",
     "README.md",
