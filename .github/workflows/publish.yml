@@ -21,15 +21,7 @@ jobs:
 
       - run: bun install
 
-      - run: bun run test:unit:coverage:gate
-        env:
-          CORE_COVERAGE_THRESHOLD: '70'
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          files: ./coverage/lcov.info
-          fail_ci_if_error: false
+      - run: bun run test:unit
 
   publish:
     if: startsWith(github.ref, 'refs/tags/v')

@@ -1,17 +1,17 @@
-name: Unit Test
+name: Coverage Badge
 
 on:
-  pull_request:
   push:
     branches:
       - main
       - master
+  workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  unit-test:
+  coverage-badge:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,8 +26,13 @@ jobs:
         env:
           CORE_COVERAGE_THRESHOLD: '70'
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+      - run: bun run coverage:badge
+
+      - run: touch badge/.nojekyll
+
+      - name: Deploy coverage badge to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          files: ./coverage/lcov.info
-          fail_ci_if_error: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./badge
+          publish_branch: gh-pages

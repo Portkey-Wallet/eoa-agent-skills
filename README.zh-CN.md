@@ -3,7 +3,7 @@
 [English](./README.md) | 中文
 
 [![Unit Tests](https://github.com/Portkey-Wallet/eoa-agent-skills/actions/workflows/test.yml/badge.svg)](https://github.com/Portkey-Wallet/eoa-agent-skills/actions/workflows/test.yml)
-[![Coverage](https://codecov.io/gh/Portkey-Wallet/eoa-agent-skills/graph/badge.svg)](https://codecov.io/gh/Portkey-Wallet/eoa-agent-skills)
+[![Coverage](https://img.shields.io/endpoint?url=https://Portkey-Wallet.github.io/eoa-agent-skills/coverage.json)](https://Portkey-Wallet.github.io/eoa-agent-skills/coverage.json)
 
 [aelf 区块链](https://aelf.com) 上 Portkey EOA 钱包的 AI Agent Skills。提供 MCP、CLI 和 SDK 三种接口，覆盖钱包管理、Token 转账、资产查询和智能合约交互。
 
