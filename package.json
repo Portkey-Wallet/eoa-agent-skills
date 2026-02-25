@@ -40,6 +40,7 @@
     "cli": "bun run portkey_eoa_skill.ts",
     "test": "bun test tests/",
     "test:unit": "bun test tests/unit/",
+    "test:unit:coverage": "bun run test:unit --coverage --coverage-reporter=text --coverage-reporter=lcov --coverage-dir=coverage",
     "test:integration": "bun test tests/integration/",
     "test:e2e": "bun test tests/e2e/"
   },
