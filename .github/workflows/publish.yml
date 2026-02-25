@@ -25,7 +25,9 @@ jobs:
 
       - run: bun install
 
-      - run: bun run test:unit:coverage
+      - run: bun run test:unit:coverage:gate
+        env:
+          CORE_COVERAGE_THRESHOLD: '70'
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
