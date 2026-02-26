@@ -32,6 +32,8 @@ type ChainCoreMockState = {
   getTxResultImpl: (...args: any[]) => Promise<any>;
 };
 
+const mockAelfInstanceCache: Record<string, any> = {};
+
 const defaultState = (): ChainCoreMockState => ({
   getContractBasicCalls: [],
   getContractBasicImpl: async () => ({
@@ -50,12 +52,18 @@ const defaultState = (): ChainCoreMockState => ({
     if (chainId === 'tDVW') return 1931928;
     return 0;
   },
-  getAelfAddressImpl: (value: string) => value.replace(/^ELF_/, '').split('_')[0] || value,
+  getAelfAddressImpl: (value: string) =>
+    value.replace(/^ELF_/, '').split('_')[0] || value,
   getChainIdFromAddressImpl: (value: string) => {
     const parts = value.split('_');
     return parts.length === 3 ? parts[2] : undefined;
   },
-  getAelfInstanceImpl: () => ({}),
+  getAelfInstanceImpl: (rpcUrl: string) => {
+    if (!mockAelfInstanceCache[rpcUrl]) {
+      mockAelfInstanceCache[rpcUrl] = { chain: {} };
+    }
+    return mockAelfInstanceCache[rpcUrl];
+  },
   getTxResultImpl: async () => ({ Status: 'MINED' }),
 });
 
