@@ -41,6 +41,9 @@
     "test": "bun test tests/",
     "test:unit": "bun test tests/unit/",
     "test:unit:coverage": "bun run test:unit --coverage --coverage-reporter=text --coverage-reporter=lcov --coverage-dir=coverage",
+    "coverage:badge": "bun run bin/generate-coverage-badge.ts",
+    "coverage:core": "bun run bin/check-core-coverage.ts",
+    "test:unit:coverage:gate": "bun run test:unit:coverage && bun run coverage:core",
     "test:integration": "bun test tests/integration/",
     "test:e2e": "bun test tests/e2e/"
   },

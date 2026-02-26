@@ -2,8 +2,8 @@
 
 [中文版](./README.zh-CN.md) | English
 
-[![Unit Tests](https://github.com/Portkey-Wallet/eoa-agent-skills/actions/workflows/publish.yml/badge.svg)](https://github.com/Portkey-Wallet/eoa-agent-skills/actions/workflows/publish.yml)
-[![Coverage](https://codecov.io/gh/Portkey-Wallet/eoa-agent-skills/graph/badge.svg)](https://codecov.io/gh/Portkey-Wallet/eoa-agent-skills)
+[![Unit Tests](https://github.com/Portkey-Wallet/eoa-agent-skills/actions/workflows/test.yml/badge.svg)](https://github.com/Portkey-Wallet/eoa-agent-skills/actions/workflows/test.yml)
+[![Coverage](https://img.shields.io/endpoint?url=https://Portkey-Wallet.github.io/eoa-agent-skills/coverage.json)](https://Portkey-Wallet.github.io/eoa-agent-skills/coverage.json)
 
 AI Agent Skills for Portkey EOA Wallet on [aelf blockchain](https://aelf.com). Provides MCP, CLI, and SDK interfaces for wallet management, token transfers, asset queries, and smart contract interactions.
 
