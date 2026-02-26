@@ -1,0 +1,257 @@
+{
+  "generatedAt": "2026-02-26T10:28:17.390Z",
+  "source": "coverage/lcov.info",
+  "coverageModel": "bun-text-all-files-by-file-average",
+  "byFileAverage": {
+    "lines": {
+      "total": 12,
+      "covered": 12,
+      "pct": 80.95187949100863
+    },
+    "functions": {
+      "total": 0,
+      "covered": 0,
+      "pct": 0
+    },
+    "branches": {
+      "total": 0,
+      "covered": 0,
+      "pct": 0
+    }
+  },
+  "weighted": {
+    "lines": {
+      "total": 1210,
+      "covered": 905,
+      "pct": 74.79338842975206
+    },
+    "functions": {
+      "total": 0,
+      "covered": 0,
+      "pct": 0
+    },
+    "branches": {
+      "total": 0,
+      "covered": 0,
+      "pct": 0
+    }
+  },
+  "files": [
+    {
+      "file": "index.ts",
+      "lines": {
+        "total": 8,
+        "covered": 8,
+        "pct": 100
+      },
+      "functions": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      }
+    },
+    {
+      "file": "lib/aelf.ts",
+      "lines": {
+        "total": 189,
+        "covered": 23,
+        "pct": 12.16931216931217
+      },
+      "functions": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      }
+    },
+    {
+      "file": "lib/api.ts",
+      "lines": {
+        "total": 194,
+        "covered": 151,
+        "pct": 77.83505154639175
+      },
+      "functions": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      }
+    },
+    {
+      "file": "lib/config.ts",
+      "lines": {
+        "total": 55,
+        "covered": 45,
+        "pct": 81.81818181818183
+      },
+      "functions": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      }
+    },
+    {
+      "file": "lib/crypto.ts",
+      "lines": {
+        "total": 23,
+        "covered": 17,
+        "pct": 73.91304347826086
+      },
+      "functions": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      }
+    },
+    {
+      "file": "lib/storage.ts",
+      "lines": {
+        "total": 89,
+        "covered": 65,
+        "pct": 73.03370786516854
+      },
+      "functions": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      }
+    },
+    {
+      "file": "src/core/bridge.ts",
+      "lines": {
+        "total": 123,
+        "covered": 114,
+        "pct": 92.6829268292683
+      },
+      "functions": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      }
+    },
+    {
+      "file": "src/core/contract.ts",
+      "lines": {
+        "total": 131,
+        "covered": 131,
+        "pct": 100
+      },
+      "functions": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      }
+    },
+    {
+      "file": "src/core/query.ts",
+      "lines": {
+        "total": 75,
+        "covered": 74,
+        "pct": 98.66666666666667
+      },
+      "functions": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      }
+    },
+    {
+      "file": "src/core/transfer.ts",
+      "lines": {
+        "total": 84,
+        "covered": 83,
+        "pct": 98.80952380952381
+      },
+      "functions": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      }
+    },
+    {
+      "file": "src/core/wallet.ts",
+      "lines": {
+        "total": 158,
+        "covered": 128,
+        "pct": 81.0126582278481
+      },
+      "functions": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      }
+    },
+    {
+      "file": "tests/unit/chain-core-mock-state.ts",
+      "lines": {
+        "total": 81,
+        "covered": 66,
+        "pct": 81.48148148148148
+      },
+      "functions": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      }
+    }
+  ]
+}
