@@ -223,7 +223,6 @@ function main() {
   };
 
   const detail = {
-    generatedAt: new Date().toISOString(),
     source: inputFile,
     coverageModel: 'bun-text-all-files-by-file-average',
     byFileAverage: summary.byFileAverage,

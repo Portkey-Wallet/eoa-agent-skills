@@ -6,148 +6,358 @@
       "name": "portkey-eoa-wallet-create",
       "description": "Create a new EOA wallet. Password is auto-generated if omitted. Mnemonic is redacted by default (encrypted in wallet file, recoverable via portkey-eoa-wallet-backup). IMPORTANT: Do NOT output the mnemonic in the channel. The auto-generated password MUST be shown to the user so they can save it — without it the wallet cannot be unlocked.",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "wallet", "create", "--redact-mnemonic"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "wallet",
+        "create",
+        "--redact-mnemonic"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-wallet-import",
       "description": "Import a wallet from a private key or mnemonic. Password is auto-generated if omitted. IMPORTANT: Do NOT echo the private key or mnemonic back in the channel. The auto-generated password MUST be shown to the user.",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "wallet", "import"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "wallet",
+        "import"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-wallet-list",
       "description": "List all locally stored wallets (public info only: address, name, network)",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "wallet", "list"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "wallet",
+        "list"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-wallet-info",
       "description": "Get public info for a specific wallet",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "wallet", "info"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "wallet",
+        "info"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-wallet-backup",
       "description": "Export mnemonic and private key (requires password). IMPORTANT: NEVER output mnemonic or private key in a channel message. Instruct the user to run this command on their local machine instead.",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "wallet", "backup"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "wallet",
+        "backup"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-wallet-delete",
       "description": "Delete a locally stored wallet (requires password verification)",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "wallet", "delete"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "wallet",
+        "delete"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-query-tokens",
       "description": "Get token list with balances for a wallet address",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "query", "tokens"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "query",
+        "tokens"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-query-balance",
       "description": "Get specific token balance",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "query", "balance"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "query",
+        "balance"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-query-price",
       "description": "Get token prices in USD",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "query", "price"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "query",
+        "price"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-query-nft-collections",
       "description": "Get NFT collections for a wallet",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "query", "nft-collections"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "query",
+        "nft-collections"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-query-nft-items",
       "description": "Get NFT items in a collection",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "query", "nft-items"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "query",
+        "nft-items"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-query-history",
       "description": "Get transaction history for a wallet",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "query", "history"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "query",
+        "history"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-query-tx",
       "description": "Get transaction detail by ID",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "query", "tx"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "query",
+        "tx"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-transfer",
       "description": "Send a same-chain token transfer",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "transfer"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "transfer"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-cross-chain-transfer",
       "description": "Send a cross-chain token transfer between aelf chains",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "transfer", "--cross-chain"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "transfer",
+        "--cross-chain"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-contract-view",
       "description": "Call a read-only contract method",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "contract", "view"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "contract",
+        "view"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-contract-send",
       "description": "Call a state-changing contract method (requires wallet)",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "contract", "send"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "contract",
+        "send"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-contract-approve",
       "description": "Approve token spending allowance",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "contract", "approve"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "contract",
+        "approve"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-contract-estimate-fee",
       "description": "Estimate transaction fee before sending",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "contract", "estimate-fee"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "contract",
+        "estimate-fee"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-ebridge-transfer",
       "description": "Cross-chain transfer via eBridge (aelf <-> EVM)",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "ebridge", "transfer"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "ebridge",
+        "transfer"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     },
     {
       "name": "portkey-eoa-ebridge-limit",
       "description": "Query eBridge transfer limits",
       "command": "bun",
-      "args": ["run", "portkey_eoa_skill.ts", "ebridge", "limit"],
-      "cwd": "."
+      "args": [
+        "run",
+        "portkey_eoa_skill.ts",
+        "ebridge",
+        "limit"
+      ],
+      "cwd": ".",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
     }
   ]
 }

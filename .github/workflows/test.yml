@@ -23,10 +23,8 @@ jobs:
           bun-version: latest
 
       - run: bun install
-
-      - run: bun run test:unit:coverage:gate
-        env:
-          CORE_COVERAGE_THRESHOLD: '70'
+      - run: bun run test:coverage:ci
+      - run: bun run build:openclaw:check
 
       - name: Upload coverage to Codecov
         if: ${{ env.CODECOV_TOKEN != '' }}
