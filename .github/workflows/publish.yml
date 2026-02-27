@@ -20,8 +20,8 @@ jobs:
           bun-version: latest
 
       - run: bun install
-
-      - run: bun run test:unit
+      - run: bun run test:coverage:ci
+      - run: bun run build:openclaw:check
 
   publish:
     if: startsWith(github.ref, 'refs/tags/v')
