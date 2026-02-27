@@ -49,7 +49,8 @@
     "coverage:gate": "bun run scripts/coverage-gate.ts",
     "test:coverage:ci": "COVERAGE_MIN_LINES=85 COVERAGE_MIN_FUNCS=80 bun run test:unit:coverage && bun run coverage:gate",
     "build:openclaw": "bun run bin/generate-openclaw.ts",
-    "build:openclaw:check": "bun run bin/generate-openclaw.ts --check"
+    "build:openclaw:check": "bun run bin/generate-openclaw.ts --check",
+    "deps:check": "bun run scripts/check-deps-baseline.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.26.0",

@@ -1,7 +1,12 @@
 import type { PortkeyConfig, AddressInfo } from './types.js';
 import { getAelfAddress, getChainIdFromAddress } from './aelf.js';
-
-const DEFAULT_TIMEOUT = 30000;
+import {
+  ACTIVITY_IMAGE_SIZE,
+  CHAIN_IDS,
+  DEFAULT_TIMEOUT_MS,
+  NFT_IMAGE_SIZE,
+} from './constants.js';
+import { SkillError } from './errors.js';
 
 // ============================================================
 // Generic HTTP helpers
@@ -17,7 +22,7 @@ async function request<T>(
     timeout?: number;
   },
 ): Promise<T> {
-  const { method, params, body, timeout = DEFAULT_TIMEOUT } = options;
+  const { method, params, body, timeout = DEFAULT_TIMEOUT_MS } = options;
 
   let url = `${baseUrl}${path}`;
   if (method === 'GET' && params) {
@@ -41,13 +46,13 @@ async function request<T>(
         'Content-Type': 'application/json',
         Accept: 'text/plain;v=1.0',
       },
-      body: method !== 'GET' ? JSON.stringify(body || params) : undefined,
+      body: method !== 'GET' ? JSON.stringify(body ?? params) : undefined,
       signal: controller.signal,
     });
 
     if (!res.ok) {
       const text = await res.text().catch(() => '');
-      throw new Error(`API error ${res.status}: ${text || res.statusText}`);
+      throw new SkillError('UPSTREAM_ERROR', `API error ${res.status}: ${text || res.statusText}`);
     }
 
     const json = await res.json();
@@ -68,16 +73,16 @@ function buildAddressInfos(
 ): AddressInfo[] {
   // Strip ELF_xxx_ChainId format → raw address, and extract chainId if embedded
   const address = getAelfAddress(rawAddress);
-  const resolvedChainId = chainId || getChainIdFromAddress(rawAddress);
+  const resolvedChainId = chainId ?? getChainIdFromAddress(rawAddress);
 
   if (resolvedChainId) {
     return [{ chainId: resolvedChainId, address }];
   }
   // If no specific chainId, include common aelf chains
   return [
-    { chainId: 'AELF', address },
-    { chainId: 'tDVV', address },
-    { chainId: 'tDVW', address },
+    { chainId: CHAIN_IDS.AELF, address },
+    { chainId: CHAIN_IDS.TDVV, address },
+    { chainId: CHAIN_IDS.TDVW, address },
   ];
 }
 
@@ -148,8 +153,7 @@ export async function fetchNFTCollections(
       addressInfos,
       skipCount: params.skipCount ?? 0,
       maxResultCount: params.maxResultCount ?? 50,
-      width: 300,
-      height: 300,
+      ...NFT_IMAGE_SIZE,
     },
   });
 }
@@ -171,8 +175,7 @@ export async function fetchNFTItems(
       symbol: params.symbol,
       skipCount: params.skipCount ?? 0,
       maxResultCount: params.maxResultCount ?? 50,
-      width: 300,
-      height: 300,
+      ...NFT_IMAGE_SIZE,
     },
   });
 }
@@ -184,7 +187,7 @@ export async function fetchNFTItem(
   const addressInfos = buildAddressInfos(params.address);
   return request<any>(config.apiUrl, '/api/app/user/assets/nftItem', {
     method: 'POST',
-    body: { addressInfos, symbol: params.symbol, width: 300, height: 300 },
+    body: { addressInfos, symbol: params.symbol, ...NFT_IMAGE_SIZE },
   });
 }
 
@@ -207,12 +210,11 @@ export async function fetchActivities(
     method: 'POST',
     body: {
       addressInfos,
-      chainId: params.chainId || '',
-      symbol: params.symbol || '',
+      chainId: params.chainId ?? '',
+      symbol: params.symbol ?? '',
       skipCount: params.skipCount ?? 0,
       maxResultCount: params.maxResultCount ?? 20,
-      width: 120,
-      height: 120,
+      ...ACTIVITY_IMAGE_SIZE,
     },
   });
 }
@@ -234,8 +236,7 @@ export async function fetchActivity(
       blockHash: params.blockHash,
       addressInfos,
       chainId: params.chainId,
-      width: 120,
-      height: 120,
+      ...ACTIVITY_IMAGE_SIZE,
     },
   });
 }

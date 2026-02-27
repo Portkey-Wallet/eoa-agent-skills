@@ -1,4 +1,6 @@
 import AElf from 'aelf-sdk';
+import { RPC_HTTP_TIMEOUT_MS } from './constants.js';
+import { SkillError } from './errors.js';
 
 // ============================================================
 // Types
@@ -32,15 +34,15 @@ interface SendOptions {
 // Wallet helpers
 // ============================================================
 
-/**
- * Default read-only private key for view-only contract calls.
- * Override via PORTKEY_READONLY_PRIVATE_KEY env variable.
- */
-const DEFAULT_READONLY_PRIVATE_KEY =
-  'f6e512a3c259e5f9af981d7f99d245aa5bc52fe448495e0b0dd56e8406be6f71';
-
 function getReadonlyPrivateKey(): string {
-  return process.env.PORTKEY_READONLY_PRIVATE_KEY || DEFAULT_READONLY_PRIVATE_KEY;
+  const value = process.env.PORTKEY_READONLY_PRIVATE_KEY;
+  if (!value) {
+    throw new SkillError(
+      'INVALID_CONFIG',
+      'PORTKEY_READONLY_PRIVATE_KEY is required for view-only wallet resolution.',
+    );
+  }
+  return value;
 }
 
 /**
@@ -48,7 +50,7 @@ function getReadonlyPrivateKey(): string {
  * If no key is provided, uses a read-only key (for view calls).
  */
 export function getWallet(privateKey?: string): AElfWallet {
-  return AElf.wallet.getWalletByPrivateKey(privateKey || getReadonlyPrivateKey());
+  return AElf.wallet.getWalletByPrivateKey(privateKey ?? getReadonlyPrivateKey());
 }
 
 /**
@@ -77,7 +79,7 @@ const instanceCache: Record<string, any> = {};
 export function getAelfInstance(rpcUrl: string): any {
   if (!instanceCache[rpcUrl]) {
     instanceCache[rpcUrl] = new AElf(
-      new AElf.providers.HttpProvider(rpcUrl, 20000),
+      new AElf.providers.HttpProvider(rpcUrl, RPC_HTTP_TIMEOUT_MS),
     );
   }
   return instanceCache[rpcUrl];
@@ -138,7 +140,7 @@ function wrapContract(aelfContract: any, aelfInstance: any): ContractInstance {
       sendOptions?: SendOptions,
     ) {
       try {
-        const { onMethod = 'receipt' } = sendOptions || {};
+        const { onMethod = 'receipt' } = sendOptions ?? {};
         const fn = aelfContract[capitalize(methodName)];
         if (!fn) throw new Error(`Method ${methodName} not found on contract`);
         const req = await fn(params);

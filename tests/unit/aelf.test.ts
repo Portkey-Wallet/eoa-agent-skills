@@ -1,4 +1,4 @@
-import { describe, test, expect } from 'bun:test';
+import { describe, test, expect, beforeAll, afterAll } from 'bun:test';
 import {
   getWallet,
   createNewWallet,
@@ -11,6 +11,22 @@ import {
 } from '../../lib/aelf.js';
 
 describe('aelf utilities', () => {
+  const testReadonlyPrivateKey =
+    'f6e512a3c259e5f9af981d7f99d245aa5bc52fe448495e0b0dd56e8406be6f71';
+  const previousReadonlyPrivateKey = process.env.PORTKEY_READONLY_PRIVATE_KEY;
+
+  beforeAll(() => {
+    process.env.PORTKEY_READONLY_PRIVATE_KEY = testReadonlyPrivateKey;
+  });
+
+  afterAll(() => {
+    if (previousReadonlyPrivateKey === undefined) {
+      delete process.env.PORTKEY_READONLY_PRIVATE_KEY;
+    } else {
+      process.env.PORTKEY_READONLY_PRIVATE_KEY = previousReadonlyPrivateKey;
+    }
+  });
+
   test('getWallet returns wallet with address', () => {
     const wallet = getWallet();
     expect(wallet.address).toBeTruthy();
