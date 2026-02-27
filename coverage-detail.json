@@ -1,5 +1,4 @@
 {
-  "generatedAt": "2026-02-26T10:28:17.390Z",
   "source": "coverage/lcov.info",
   "coverageModel": "bun-text-all-files-by-file-average",
   "byFileAverage": {
