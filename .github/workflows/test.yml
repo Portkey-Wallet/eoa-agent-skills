@@ -23,6 +23,7 @@ jobs:
           bun-version: latest
 
       - run: bun install
+      - run: bun run deps:check
       - run: bun run test:coverage:ci
       - run: bun run build:openclaw:check
 
