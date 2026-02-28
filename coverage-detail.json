@@ -3,9 +3,9 @@
   "coverageModel": "bun-text-all-files-by-file-average",
   "byFileAverage": {
     "lines": {
-      "total": 12,
-      "covered": 12,
-      "pct": 80.95187949100863
+      "total": 14,
+      "covered": 14,
+      "pct": 83.61712821776537
     },
     "functions": {
       "total": 0,
@@ -20,9 +20,9 @@
   },
   "weighted": {
     "lines": {
-      "total": 1210,
-      "covered": 905,
-      "pct": 74.79338842975206
+      "total": 1237,
+      "covered": 925,
+      "pct": 74.77768795472919
     },
     "functions": {
       "total": 0,
@@ -57,9 +57,9 @@
     {
       "file": "lib/aelf.ts",
       "lines": {
-        "total": 189,
+        "total": 196,
         "covered": 23,
-        "pct": 12.16931216931217
+        "pct": 11.73469387755102
       },
       "functions": {
         "total": 0,
@@ -75,9 +75,9 @@
     {
       "file": "lib/api.ts",
       "lines": {
-        "total": 194,
-        "covered": 151,
-        "pct": 77.83505154639175
+        "total": 191,
+        "covered": 148,
+        "pct": 77.4869109947644
       },
       "functions": {
         "total": 0,
@@ -109,11 +109,47 @@
       }
     },
     {
+      "file": "lib/constants.ts",
+      "lines": {
+        "total": 15,
+        "covered": 15,
+        "pct": 100
+      },
+      "functions": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      }
+    },
+    {
       "file": "lib/crypto.ts",
       "lines": {
         "total": 23,
         "covered": 17,
         "pct": 73.91304347826086
+      },
+      "functions": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      }
+    },
+    {
+      "file": "lib/errors.ts",
+      "lines": {
+        "total": 8,
+        "covered": 8,
+        "pct": 100
       },
       "functions": {
         "total": 0,
