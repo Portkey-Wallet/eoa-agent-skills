@@ -1,6 +1,6 @@
 {
   "name": "@portkey/eoa-agent-skills",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "AI Agent Skills for Portkey EOA Wallet — MCP, CLI, and SDK interfaces for wallet management, token transfers, asset queries, and contract interactions on aelf blockchain.",
   "type": "module",
   "main": "index.ts",
