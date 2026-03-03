@@ -12,6 +12,8 @@ import {
   listWallets,
   backupWallet,
   deleteWalletByAddress,
+  getActiveWallet,
+  setActiveWallet,
 } from '../core/wallet.js';
 import {
   getChainInfo,
@@ -237,6 +239,56 @@ server.registerTool(
       return ok(
         await deleteWalletByAddress(config, { address, password }),
       );
+    } catch (err) {
+      return fail(err);
+    }
+  },
+);
+
+server.registerTool(
+  'portkey_get_active_wallet',
+  {
+    description:
+      'Get the shared active wallet context used by cross-skill signer resolution.',
+    inputSchema: {},
+  },
+  async () => {
+    try {
+      return ok({ activeWallet: getActiveWallet() });
+    } catch (err) {
+      return fail(err);
+    }
+  },
+);
+
+server.registerTool(
+  'portkey_set_active_wallet',
+  {
+    description:
+      'Set shared active wallet context manually for cross-skill signer resolution.',
+    inputSchema: {
+      walletType: z.enum(['EOA', 'CA']).describe('Wallet identity type'),
+      source: z
+        .enum(['eoa-local', 'ca-keystore', 'env'])
+        .describe('Credential source'),
+      network: z
+        .enum(['mainnet', 'testnet'])
+        .optional()
+        .describe('Optional network tag'),
+      address: z.string().optional().describe('EOA address'),
+      caAddress: z.string().optional().describe('CA address'),
+      caHash: z.string().optional().describe('CA hash'),
+      walletFile: z.string().optional().describe('EOA wallet file absolute path'),
+      keystoreFile: z
+        .string()
+        .optional()
+        .describe('CA keystore file absolute path'),
+    },
+  },
+  async (input) => {
+    try {
+      const context = setActiveWallet(input);
+      return ok({ updated: true, context });
     } catch (err) {
       return fail(err);
     }

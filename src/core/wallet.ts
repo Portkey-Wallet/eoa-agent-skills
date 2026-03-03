@@ -18,12 +18,19 @@ import {
   listWallets as listStoredWallets,
   walletExists,
   deleteWallet as deleteStoredWallet,
+  getWalletDir,
 } from '../../lib/storage.js';
 import {
   createNewWallet,
   getWalletByMnemonic,
   getWallet,
 } from '../../lib/aelf.js';
+import {
+  getActiveWalletProfile,
+  setActiveWalletProfile,
+  type ActiveWalletProfile,
+} from '../../lib/wallet-context.js';
+import * as path from 'node:path';
 
 // ============================================================
 // createWallet — Generate a new wallet, encrypt, and store locally
@@ -52,6 +59,19 @@ export async function createWallet(
   };
 
   saveWallet(stored);
+  setActiveWalletProfile(
+    {
+      walletType: 'EOA',
+      source: 'eoa-local',
+      network: config.network,
+      address: walletInfo.address,
+      walletFile: path.join(getWalletDir(), `${walletInfo.address}.json`),
+    },
+    {
+      skill: 'portkey-eoa',
+      version: process.env.npm_package_version || '0.0.0',
+    },
+  );
 
   const result: CreateWalletResult = {
     address: walletInfo.address,
@@ -125,6 +145,19 @@ export async function importWallet(
   };
 
   saveWallet(stored);
+  setActiveWalletProfile(
+    {
+      walletType: 'EOA',
+      source: 'eoa-local',
+      network: config.network,
+      address: walletInfo.address,
+      walletFile: path.join(getWalletDir(), `${walletInfo.address}.json`),
+    },
+    {
+      skill: 'portkey-eoa',
+      version: process.env.npm_package_version || '0.0.0',
+    },
+  );
 
   const result: ImportWalletResult = { address: walletInfo.address };
   if (passwordGenerated) {
@@ -236,8 +269,21 @@ export function resolvePrivateKey(params: {
     return decrypt(stored.AESEncryptPrivateKey, password);
   }
 
+  // 4. From shared active wallet context (cross-skill)
+  const active = getActiveWalletProfile();
+  if (active?.walletType === 'EOA' && active.address) {
+    const password = params.password || process.env.PORTKEY_WALLET_PASSWORD;
+    if (!password) {
+      throw new Error(
+        'SIGNER_PASSWORD_REQUIRED: password is required for active EOA wallet (set PORTKEY_WALLET_PASSWORD env or pass password param)',
+      );
+    }
+    const stored = loadWallet(active.address);
+    return decrypt(stored.AESEncryptPrivateKey, password);
+  }
+
   throw new Error(
-    'No private key available. Provide privateKey, or address+password, or set PORTKEY_PRIVATE_KEY env.',
+    'No private key available. Provide privateKey, or address+password, or set PORTKEY_PRIVATE_KEY env, or set active wallet context.',
   );
 }
 
@@ -278,3 +324,22 @@ export function createSignerFromWallet(params: {
   return createEoaSigner(pk);
 }
 
+export function getActiveWallet(): ActiveWalletProfile | null {
+  return getActiveWalletProfile();
+}
+
+export function setActiveWallet(input: {
+  walletType: 'EOA' | 'CA';
+  source: 'eoa-local' | 'ca-keystore' | 'env';
+  network?: string;
+  address?: string;
+  caAddress?: string;
+  caHash?: string;
+  walletFile?: string;
+  keystoreFile?: string;
+}) {
+  return setActiveWalletProfile(input, {
+    skill: 'portkey-eoa',
+    version: process.env.npm_package_version || '0.0.0',
+  });
+}

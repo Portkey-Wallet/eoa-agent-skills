@@ -69,6 +69,13 @@ cp .env.example .env
 | `PORTKEY_PRIVATE_KEY` | Plaintext private key (optional) | — |
 | `PORTKEY_WALLET_DIR` | Custom wallet storage directory | `~/.portkey/eoa/wallets/` |
 | `PORTKEY_WALLET_PASSWORD` | Password for local wallet encryption | — |
+| `PORTKEY_SKILL_WALLET_CONTEXT_PATH` | Override shared wallet context path | `~/.portkey/skill-wallet/context.v1.json` |
+
+### Cross-skill signing
+
+- After `portkey_create_wallet` / `portkey_import_wallet`, this skill auto-updates shared active wallet context.
+- Other write-capable skills can resolve signer by `explicit -> active context -> env` (auto mode).
+- No plaintext private key is written to the shared context file.
 
 ### MCP Server
 
@@ -141,15 +148,17 @@ const result = await transfer(config, {
 console.log('TX:', result.transactionId);
 ```
 
-## MCP Tools (21 total)
+## MCP Tools (23 total)
 
-### Wallet Management (6)
+### Wallet Management (8)
 - `portkey_create_wallet` — Create new wallet with encrypted local storage
 - `portkey_import_wallet` — Import from mnemonic or private key
 - `portkey_get_wallet_info` — View wallet public info
 - `portkey_list_wallets` — List all local wallets
 - `portkey_backup_wallet` — Export wallet credentials
 - `portkey_delete_wallet` — Delete a local wallet (requires password)
+- `portkey_get_active_wallet` — Read shared active wallet context
+- `portkey_set_active_wallet` — Set shared active wallet context manually
 
 ### Asset Queries (7)
 - `portkey_get_token_list` — Token portfolio with balances

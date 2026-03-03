@@ -9,6 +9,8 @@ import {
   listWallets,
   backupWallet,
   createSignerFromWallet,
+  resolvePrivateKey,
+  getActiveWallet,
 } from '../../src/core/wallet.js';
 import { getConfig } from '../../lib/config.js';
 
@@ -17,12 +19,20 @@ describe('core/wallet', () => {
     os.tmpdir(),
     'portkey-wallet-test-' + Date.now(),
   );
+  const contextPath = path.join(
+    os.tmpdir(),
+    'portkey-wallet-context-test-' + Date.now() + '.json',
+  );
   const config = getConfig('mainnet');
 
   beforeEach(() => {
     process.env.PORTKEY_WALLET_DIR = testDir;
+    process.env.PORTKEY_SKILL_WALLET_CONTEXT_PATH = contextPath;
     if (fs.existsSync(testDir)) {
       fs.rmSync(testDir, { recursive: true });
+    }
+    if (fs.existsSync(contextPath)) {
+      fs.rmSync(contextPath, { force: true });
     }
   });
 
@@ -31,6 +41,9 @@ describe('core/wallet', () => {
       fs.rmSync(testDir, { recursive: true });
     }
     delete process.env.PORTKEY_WALLET_DIR;
+    delete process.env.PORTKEY_PRIVATE_KEY;
+    delete process.env.PORTKEY_WALLET_PASSWORD;
+    delete process.env.PORTKEY_SKILL_WALLET_CONTEXT_PATH;
   });
 
   test('createWallet returns address and mnemonic', async () => {
@@ -182,5 +195,27 @@ describe('core/wallet', () => {
         address: 'nonExistentAddress12345678901234567890',
       }),
     ).toThrow();
+  });
+
+  test('createWallet writes active wallet context', async () => {
+    const created = await createWallet(config, { password: 'pass' });
+    const active = getActiveWallet();
+    expect(active?.walletType).toBe('EOA');
+    expect(active?.source).toBe('eoa-local');
+    expect(active?.address).toBe(created.address);
+  });
+
+  test('resolvePrivateKey can read from active wallet context', async () => {
+    const created = await createWallet(config, { password: 'pass' });
+    const backup = await backupWallet(config, {
+      address: created.address,
+      password: 'pass',
+    });
+
+    process.env.PORTKEY_WALLET_PASSWORD = 'pass';
+    delete process.env.PORTKEY_PRIVATE_KEY;
+
+    const privateKey = resolvePrivateKey({});
+    expect(privateKey).toBe(backup.privateKey);
   });
 });

@@ -10,6 +10,7 @@ description: "Portkey EOA wallet and asset operations for aelf agents."
 
 ## Capabilities
 - Wallet lifecycle: create, import, list, backup, delete
+- Shared wallet context: auto-set active wallet for cross-skill signer resolution
 - Asset/query operations: token balances, NFTs, history, prices
 - Transfer and contract execution via CLI/MCP/SDK adapters
 - Supports SDK, CLI, MCP, and OpenClaw integration from one codebase.
@@ -22,6 +23,8 @@ description: "Portkey EOA wallet and asset operations for aelf agents."
 ## Command recipes
 - Start MCP server: `bun run mcp`
 - Run CLI entry: `bun run cli`
+- Show active wallet context: `portkey_get_active_wallet`
+- Set active wallet context: `portkey_set_active_wallet`
 - Generate OpenClaw config: `bun run build:openclaw`
 - Verify OpenClaw config: `bun run build:openclaw:check`
 - Run CI coverage gate: `bun run test:coverage:ci`
