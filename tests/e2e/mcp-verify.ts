@@ -34,6 +34,8 @@ async function main() {
     'portkey_import_wallet',
     'portkey_get_wallet_info',
     'portkey_list_wallets',
+    'portkey_get_active_wallet',
+    'portkey_set_active_wallet',
     'portkey_backup_wallet',
     'portkey_delete_wallet',
     'portkey_get_token_list',

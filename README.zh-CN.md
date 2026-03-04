@@ -69,6 +69,13 @@ cp .env.example .env
 | `PORTKEY_PRIVATE_KEY` | 明文私钥（可选） | — |
 | `PORTKEY_WALLET_DIR` | 自定义钱包存储目录 | `~/.portkey/eoa/wallets/` |
 | `PORTKEY_WALLET_PASSWORD` | 本地钱包加密密码 | — |
+| `PORTKEY_SKILL_WALLET_CONTEXT_PATH` | 覆盖共享钱包上下文文件路径 | `~/.portkey/skill-wallet/context.v1.json` |
+
+### 跨 Skill 签名共享
+
+- 执行 `portkey_create_wallet` / `portkey_import_wallet` 后会自动更新共享 active wallet context。
+- 其它写能力 skill 默认按 `explicit -> active context -> env` 解析 signer（auto 模式）。
+- 共享 context 文件不会落盘明文私钥。
 
 ### MCP Server
 
@@ -141,15 +148,17 @@ const result = await transfer(config, {
 console.log('交易ID:', result.transactionId);
 ```
 
-## MCP Tools（共 21 个）
+## MCP Tools（共 23 个）
 
-### 钱包管理（6）
+### 钱包管理（8）
 - `portkey_create_wallet` — 创建新钱包并加密存储
 - `portkey_import_wallet` — 导入钱包（助记词/私钥）
 - `portkey_get_wallet_info` — 查看钱包公开信息
 - `portkey_list_wallets` — 列出所有本地钱包
 - `portkey_backup_wallet` — 导出钱包凭证
 - `portkey_delete_wallet` — 删除本地钱包（需密码验证）
+- `portkey_get_active_wallet` — 读取共享 active wallet context
+- `portkey_set_active_wallet` — 手动设置共享 active wallet context
 
 ### 资产查询（7）
 - `portkey_get_token_list` — Token 列表和余额

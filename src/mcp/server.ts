@@ -3,6 +3,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import { getConfig } from '../../lib/config.js';
+import { fail } from './error.js';
+import { mergeSignerInput, signerContextSchema } from './signer-input.js';
 
 // Core imports
 import {
@@ -12,6 +14,8 @@ import {
   listWallets,
   backupWallet,
   deleteWalletByAddress,
+  getActiveWallet,
+  setActiveWallet,
 } from '../core/wallet.js';
 import {
   getChainInfo,
@@ -50,18 +54,6 @@ function ok(data: any) {
     content: [
       { type: 'text' as const, text: JSON.stringify(data, null, 2) },
     ],
-  };
-}
-
-function fail(err: any) {
-  return {
-    content: [
-      {
-        type: 'text' as const,
-        text: `[ERROR] ${err?.message || String(err)}`,
-      },
-    ],
-    isError: true as const,
   };
 }
 
@@ -237,6 +229,56 @@ server.registerTool(
       return ok(
         await deleteWalletByAddress(config, { address, password }),
       );
+    } catch (err) {
+      return fail(err);
+    }
+  },
+);
+
+server.registerTool(
+  'portkey_get_active_wallet',
+  {
+    description:
+      'Get the shared active wallet context used by cross-skill signer resolution.',
+    inputSchema: {},
+  },
+  async () => {
+    try {
+      return ok({ activeWallet: getActiveWallet() });
+    } catch (err) {
+      return fail(err);
+    }
+  },
+);
+
+server.registerTool(
+  'portkey_set_active_wallet',
+  {
+    description:
+      'Set shared active wallet context manually for cross-skill signer resolution.',
+    inputSchema: {
+      walletType: z.enum(['EOA', 'CA']).describe('Wallet identity type'),
+      source: z
+        .enum(['eoa-local', 'ca-keystore', 'env'])
+        .describe('Credential source'),
+      network: z
+        .enum(['mainnet', 'testnet'])
+        .optional()
+        .describe('Optional network tag'),
+      address: z.string().optional().describe('EOA address'),
+      caAddress: z.string().optional().describe('CA address'),
+      caHash: z.string().optional().describe('CA hash'),
+      walletFile: z.string().optional().describe('EOA wallet file absolute path'),
+      keystoreFile: z
+        .string()
+        .optional()
+        .describe('CA keystore file absolute path'),
+    },
+  },
+  async (input) => {
+    try {
+      const context = setActiveWallet(input);
+      return ok({ updated: true, context });
     } catch (err) {
       return fail(err);
     }
@@ -481,6 +523,8 @@ server.registerTool(
         .string()
         .optional()
         .describe('Password for local wallet decryption'),
+      signer: signerContextSchema,
+      signerContext: signerContextSchema,
       network: z
         .enum(['mainnet'])
         .default('mainnet')
@@ -496,10 +540,19 @@ server.registerTool(
     privateKey,
     address,
     password,
+    signer,
+    signerContext,
     network,
   }) => {
     try {
       const config = getConfig(network);
+      const resolvedSigner = mergeSignerInput({
+        privateKey,
+        address,
+        password,
+        signer,
+        signerContext,
+      });
       return ok(
         await transfer(config, {
           to,
@@ -507,9 +560,7 @@ server.registerTool(
           amount,
           memo,
           chainId,
-          privateKey,
-          address,
-          password,
+          ...resolvedSigner,
         }),
       );
     } catch (err) {
@@ -538,6 +589,8 @@ server.registerTool(
       privateKey: z.string().optional().describe('Private key (hex)'),
       address: z.string().optional().describe('Local wallet address'),
       password: z.string().optional().describe('Wallet password'),
+      signer: signerContextSchema,
+      signerContext: signerContextSchema,
       network: z
         .enum(['mainnet'])
         .default('mainnet')
@@ -553,10 +606,19 @@ server.registerTool(
     privateKey,
     address,
     password,
+    signer,
+    signerContext,
     network,
   }) => {
     try {
       const config = getConfig(network);
+      const resolvedSigner = mergeSignerInput({
+        privateKey,
+        address,
+        password,
+        signer,
+        signerContext,
+      });
       return ok(
         await crossChainTransfer(config, {
           to,
@@ -564,9 +626,7 @@ server.registerTool(
           amount,
           memo,
           fromChainId,
-          privateKey,
-          address,
-          password,
+          ...resolvedSigner,
         }),
       );
     } catch (err) {
@@ -594,6 +654,8 @@ server.registerTool(
       privateKey: z.string().optional().describe('Private key (hex)'),
       address: z.string().optional().describe('Local wallet address'),
       password: z.string().optional().describe('Wallet password'),
+      signer: signerContextSchema,
+      signerContext: signerContextSchema,
       network: z
         .enum(['mainnet'])
         .default('mainnet')
@@ -608,19 +670,26 @@ server.registerTool(
     privateKey,
     address,
     password,
+    signer,
+    signerContext,
     network,
   }) => {
     try {
       const config = getConfig(network);
+      const resolvedSigner = mergeSignerInput({
+        privateKey,
+        address,
+        password,
+        signer,
+        signerContext,
+      });
       return ok(
         await approve(config, {
           spender,
           symbol,
           amount,
           chainId,
-          privateKey,
-          address,
-          password,
+          ...resolvedSigner,
         }),
       );
     } catch (err) {
@@ -678,6 +747,8 @@ server.registerTool(
       privateKey: z.string().optional().describe('Private key (hex)'),
       address: z.string().optional().describe('Local wallet address'),
       password: z.string().optional().describe('Wallet password'),
+      signer: signerContextSchema,
+      signerContext: signerContextSchema,
       network: z
         .enum(['mainnet'])
         .default('mainnet')
@@ -692,19 +763,26 @@ server.registerTool(
     privateKey,
     address,
     password,
+    signer,
+    signerContext,
     network,
   }) => {
     try {
       const config = getConfig(network);
+      const resolvedSigner = mergeSignerInput({
+        privateKey,
+        address,
+        password,
+        signer,
+        signerContext,
+      });
       return ok(
         await callSendMethod(config, {
           contractAddress,
           methodName,
           params,
           chainId,
-          privateKey,
-          address,
-          password,
+          ...resolvedSigner,
         }),
       );
     } catch (err) {
@@ -726,6 +804,8 @@ server.registerTool(
       privateKey: z.string().optional().describe('Private key (hex)'),
       address: z.string().optional().describe('Local wallet address'),
       password: z.string().optional().describe('Wallet password'),
+      signer: signerContextSchema,
+      signerContext: signerContextSchema,
       network: z
         .enum(['mainnet'])
         .default('mainnet')
@@ -740,19 +820,26 @@ server.registerTool(
     privateKey,
     address,
     password,
+    signer,
+    signerContext,
     network,
   }) => {
     try {
       const config = getConfig(network);
+      const resolvedSigner = mergeSignerInput({
+        privateKey,
+        address,
+        password,
+        signer,
+        signerContext,
+      });
       return ok(
         await estimateTransactionFee(config, {
           contractAddress,
           methodName,
           params,
           chainId,
-          privateKey,
-          address,
-          password,
+          ...resolvedSigner,
         }),
       );
     } catch (err) {
@@ -786,6 +873,8 @@ server.registerTool(
       privateKey: z.string().optional().describe('Private key (hex)'),
       address: z.string().optional().describe('Local wallet address'),
       password: z.string().optional().describe('Wallet password'),
+      signer: signerContextSchema,
+      signerContext: signerContextSchema,
       network: z
         .enum(['mainnet'])
         .default('mainnet')
@@ -802,10 +891,19 @@ server.registerTool(
     privateKey,
     address,
     password,
+    signer,
+    signerContext,
     network,
   }) => {
     try {
       const config = getConfig(network);
+      const resolvedSigner = mergeSignerInput({
+        privateKey,
+        address,
+        password,
+        signer,
+        signerContext,
+      });
       return ok(
         await eBridgeTransfer(config, {
           targetAddress,
@@ -814,9 +912,7 @@ server.registerTool(
           fromChainId,
           toChainId,
           bridgeContractAddress,
-          privateKey,
-          address,
-          password,
+          ...resolvedSigner,
         }),
       );
     } catch (err) {

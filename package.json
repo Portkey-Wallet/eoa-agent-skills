@@ -1,6 +1,6 @@
 {
   "name": "@portkey/eoa-agent-skills",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "AI Agent Skills for Portkey EOA Wallet — MCP, CLI, and SDK interfaces for wallet management, token transfers, asset queries, and contract interactions on aelf blockchain.",
   "type": "module",
   "main": "index.ts",
@@ -48,6 +48,9 @@
     "test:e2e": "bun test tests/e2e/",
     "coverage:gate": "bun run scripts/coverage-gate.ts",
     "test:coverage:ci": "COVERAGE_MIN_LINES=85 COVERAGE_MIN_FUNCS=80 bun run test:unit:coverage && bun run coverage:gate",
+    "typecheck:src": "bunx tsc -p tsconfig.src.json --noEmit",
+    "typecheck:test": "bunx tsc -p tsconfig.test.json --noEmit",
+    "typecheck": "bun run typecheck:src && bun run typecheck:test",
     "build:openclaw": "bun run bin/generate-openclaw.ts",
     "build:openclaw:check": "bun run bin/generate-openclaw.ts --check",
     "deps:check": "bun run scripts/check-deps-baseline.ts"
@@ -61,6 +64,8 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/node": "latest",
+    "ajv": "^8.17.1",
     "typescript": "^5.7.0"
   }
 }

@@ -10,6 +10,8 @@ export {
   deleteWalletByAddress,
   resolvePrivateKey,
   createSignerFromWallet,
+  getActiveWallet,
+  setActiveWallet,
 } from './src/core/wallet.js';
 
 // Core: Queries
@@ -104,3 +106,19 @@ export type {
   EBridgeFeeParams,
   EBridgeFeeResult,
 } from './lib/types.js';
+
+export type {
+  SignerMode,
+  SignerProvider,
+  SignerContextInput,
+  WalletType,
+  WalletSource,
+  ActiveWalletProfile,
+  WalletContextFile,
+} from './lib/wallet-context.js';
+export {
+  readWalletContext,
+  writeWalletContext,
+  getActiveWalletProfile,
+  setActiveWalletProfile,
+} from './lib/wallet-context.js';

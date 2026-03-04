@@ -255,10 +255,16 @@ export interface TransactionDetailParams {
 // Transfer Types
 // ============================================================
 
-export interface TransferParams {
+export type SignerMode = 'auto' | 'explicit' | 'context' | 'env' | 'daemon';
+
+export interface SignerParams {
   privateKey?: string;
   address?: string;
   password?: string;
+  signerMode?: SignerMode;
+}
+
+export interface TransferParams extends SignerParams {
   to: string;
   symbol: string;
   amount: string;
@@ -271,10 +277,7 @@ export interface TransferResult {
   status: string;
 }
 
-export interface CrossChainTransferParams {
-  privateKey?: string;
-  address?: string;
-  password?: string;
+export interface CrossChainTransferParams extends SignerParams {
   to: string;
   symbol: string;
   amount: string;
@@ -286,10 +289,7 @@ export interface CrossChainTransferParams {
 // Contract Interaction Types
 // ============================================================
 
-export interface ApproveParams {
-  privateKey?: string;
-  address?: string;
-  password?: string;
+export interface ApproveParams extends SignerParams {
   spender: string;
   symbol: string;
   amount: string;
@@ -303,10 +303,7 @@ export interface CallViewMethodParams {
   chainId: string;
 }
 
-export interface CallSendMethodParams {
-  privateKey?: string;
-  address?: string;
-  password?: string;
+export interface CallSendMethodParams extends SignerParams {
   contractAddress: string;
   methodName: string;
   params?: any;
@@ -317,10 +314,7 @@ export interface CallSendMethodResult {
   transactionId: string;
 }
 
-export interface EstimateFeeParams {
-  privateKey?: string;
-  address?: string;
-  password?: string;
+export interface EstimateFeeParams extends SignerParams {
   contractAddress: string;
   methodName: string;
   params?: any;
@@ -335,10 +329,7 @@ export interface EstimateFeeResult {
 // eBridge Types
 // ============================================================
 
-export interface EBridgeTransferParams {
-  privateKey?: string;
-  address?: string;
-  password?: string;
+export interface EBridgeTransferParams extends SignerParams {
   targetAddress: string;
   symbol: string;
   amount: string;

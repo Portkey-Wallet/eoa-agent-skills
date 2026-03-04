@@ -24,6 +24,9 @@ jobs:
 
       - run: bun install
       - run: bun run deps:check
+      - name: Typecheck (observe)
+        continue-on-error: true
+        run: bun run typecheck
       - run: bun run test:coverage:ci
       - run: bun run build:openclaw:check
 
