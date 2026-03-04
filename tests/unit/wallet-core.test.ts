@@ -11,6 +11,7 @@ import {
   createSignerFromWallet,
   resolvePrivateKey,
   getActiveWallet,
+  setActiveWallet,
 } from '../../src/core/wallet.js';
 import { getConfig } from '../../lib/config.js';
 
@@ -217,5 +218,83 @@ describe('core/wallet', () => {
 
     const privateKey = resolvePrivateKey({});
     expect(privateKey).toBe(backup.privateKey);
+  });
+
+  test('resolvePrivateKey with signerMode=context ignores env priority', async () => {
+    const created = await createWallet(config, { password: 'pass' });
+    const backup = await backupWallet(config, {
+      address: created.address,
+      password: 'pass',
+    });
+    const envWallet = await createWallet(config, { password: 'env-pass' });
+    const envBackup = await backupWallet(config, {
+      address: envWallet.address,
+      password: 'env-pass',
+    });
+    setActiveWallet({
+      walletType: 'EOA',
+      source: 'eoa-local',
+      network: 'mainnet',
+      address: created.address,
+      walletFile: path.join(testDir, `${created.address}.json`),
+    });
+
+    process.env.PORTKEY_PRIVATE_KEY = envBackup.privateKey;
+    process.env.PORTKEY_WALLET_PASSWORD = 'pass';
+    const fromContext = resolvePrivateKey({ signerMode: 'context' });
+    expect(fromContext).toBe(backup.privateKey);
+  });
+
+  test('resolvePrivateKey with signerMode=env ignores context', async () => {
+    await createWallet(config, { password: 'pass' });
+    const envWallet = await createWallet(config, { password: 'env-pass' });
+    const envBackup = await backupWallet(config, {
+      address: envWallet.address,
+      password: 'env-pass',
+    });
+
+    process.env.PORTKEY_PRIVATE_KEY = envBackup.privateKey;
+    const fromEnv = resolvePrivateKey({ signerMode: 'env' });
+    expect(fromEnv).toBe(envBackup.privateKey);
+  });
+
+  test('resolvePrivateKey daemon mode returns not implemented', () => {
+    expect(() => resolvePrivateKey({ signerMode: 'daemon' })).toThrow(
+      'SIGNER_DAEMON_NOT_IMPLEMENTED',
+    );
+  });
+
+  test('resolvePrivateKey context mode throws invalid when active wallet file is missing', async () => {
+    const created = await createWallet(config, { password: 'pass' });
+    const walletPath = path.join(testDir, `${created.address}.json`);
+    fs.rmSync(walletPath, { force: true });
+    process.env.PORTKEY_WALLET_PASSWORD = 'pass';
+
+    expect(() => resolvePrivateKey({ signerMode: 'context' })).toThrow(
+      'SIGNER_CONTEXT_INVALID',
+    );
+  });
+
+  test('resolvePrivateKey auto mode falls back to env when context is invalid', async () => {
+    const created = await createWallet(config, { password: 'pass' });
+    const contextWalletPath = path.join(testDir, `${created.address}.json`);
+    fs.rmSync(contextWalletPath, { force: true });
+
+    const envWallet = await createWallet(config, { password: 'env-pass' });
+    const envBackup = await backupWallet(config, {
+      address: envWallet.address,
+      password: 'env-pass',
+    });
+    setActiveWallet({
+      walletType: 'EOA',
+      source: 'eoa-local',
+      network: 'mainnet',
+      address: created.address,
+      walletFile: contextWalletPath,
+    });
+    process.env.PORTKEY_PRIVATE_KEY = envBackup.privateKey;
+
+    const privateKey = resolvePrivateKey({ signerMode: 'auto' });
+    expect(privateKey).toBe(envBackup.privateKey);
   });
 });

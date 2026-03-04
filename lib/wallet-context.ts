@@ -1,9 +1,13 @@
 import {
+  closeSync,
   chmodSync,
   existsSync,
   mkdirSync,
+  openSync,
   readFileSync,
   renameSync,
+  statSync,
+  unlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { homedir } from 'node:os';
@@ -51,11 +55,21 @@ export type WalletContextFile = {
 
 const CONTEXT_VERSION = 1 as const;
 const DEFAULT_PROFILE_ID = 'default';
+const LOCK_RETRY_INTERVAL_MS = 50;
+const LOCK_MAX_RETRIES = 20;
+const LOCK_STALE_MS = 30_000;
 
 function getContextPath(): string {
   const override = process.env.PORTKEY_SKILL_WALLET_CONTEXT_PATH;
   if (override) return resolve(override);
   return join(homedir(), '.portkey', 'skill-wallet', 'context.v1.json');
+}
+
+function sleepMs(ms: number): void {
+  const end = Date.now() + ms;
+  while (Date.now() < end) {
+    // busy wait for a very short lock retry window
+  }
 }
 
 function ensureDir(pathname: string): void {
@@ -141,6 +155,10 @@ function parseContext(raw: unknown): WalletContextFile | null {
 
 export function readWalletContext(): WalletContextFile | null {
   const filePath = getContextPath();
+  return readWalletContextFromPath(filePath);
+}
+
+function readWalletContextFromPath(filePath: string): WalletContextFile | null {
   if (!existsSync(filePath)) return null;
 
   try {
@@ -153,8 +171,13 @@ export function readWalletContext(): WalletContextFile | null {
 
 export function writeWalletContext(context: WalletContextFile): void {
   const filePath = getContextPath();
-  ensureDir(filePath);
+  withContextLock(filePath, () => {
+    writeWalletContextFile(filePath, context);
+  });
+}
 
+function writeWalletContextFile(filePath: string, context: WalletContextFile): void {
+  ensureDir(filePath);
   const payload = JSON.stringify(context, null, 2) + '\n';
   const tempPath = `${filePath}.tmp`;
   writeFileSync(tempPath, payload, { encoding: 'utf8', mode: 0o600 });
@@ -163,29 +186,88 @@ export function writeWalletContext(context: WalletContextFile): void {
   chmodSync(filePath, 0o600);
 }
 
+function withContextLock<T>(filePath: string, action: () => T): T {
+  ensureDir(filePath);
+  const lockPath = `${filePath}.lock`;
+  let retries = 0;
+
+  while (retries <= LOCK_MAX_RETRIES) {
+    try {
+      if (existsSync(lockPath)) {
+        const ageMs = Date.now() - statSync(lockPath).mtimeMs;
+        if (ageMs > LOCK_STALE_MS) {
+          unlinkSync(lockPath);
+        }
+      }
+    } catch {
+      // best effort stale lock cleanup
+    }
+
+    let fd: number | null = null;
+    try {
+      fd = openSync(lockPath, 'wx', 0o600);
+      const result = action();
+      closeSync(fd);
+      fd = null;
+      unlinkSync(lockPath);
+      return result;
+    } catch (error) {
+      if (fd !== null) {
+        try {
+          closeSync(fd);
+        } catch {
+          // noop
+        }
+      }
+
+      const code = error && typeof error === 'object'
+        ? String((error as { code?: unknown }).code || '')
+        : '';
+      if (code !== 'EEXIST') {
+        throw error;
+      }
+
+      retries += 1;
+      if (retries > LOCK_MAX_RETRIES) {
+        throw new Error(
+          `SIGNER_CONTEXT_LOCK_TIMEOUT: failed to acquire context lock after ${LOCK_MAX_RETRIES} retries`,
+        );
+      }
+      sleepMs(LOCK_RETRY_INTERVAL_MS);
+    }
+  }
+
+  throw new Error(
+    `SIGNER_CONTEXT_LOCK_TIMEOUT: failed to acquire context lock after ${LOCK_MAX_RETRIES} retries`,
+  );
+}
+
 export function setActiveWalletProfile(
   profile: Omit<ActiveWalletProfile, 'updatedAt'> & { profileId?: string },
   writer: WalletContextWriter,
 ): WalletContextFile {
-  const profileId = profile.profileId || DEFAULT_PROFILE_ID;
-  const current =
-    readWalletContext() ||
-    ({
-      version: CONTEXT_VERSION,
-      activeProfileId: profileId,
-      profiles: {},
-      lastWriter: writer,
-    } as WalletContextFile);
+  const filePath = getContextPath();
+  return withContextLock(filePath, () => {
+    const profileId = profile.profileId || DEFAULT_PROFILE_ID;
+    const current =
+      readWalletContextFromPath(filePath) ||
+      ({
+        version: CONTEXT_VERSION,
+        activeProfileId: profileId,
+        profiles: {},
+        lastWriter: writer,
+      } as WalletContextFile);
 
-  current.activeProfileId = profileId;
-  current.profiles[profileId] = {
-    ...profile,
-    updatedAt: new Date().toISOString(),
-  };
-  current.lastWriter = writer;
+    current.activeProfileId = profileId;
+    current.profiles[profileId] = {
+      ...profile,
+      updatedAt: new Date().toISOString(),
+    };
+    current.lastWriter = writer;
 
-  writeWalletContext(current);
-  return current;
+    writeWalletContextFile(filePath, current);
+    return current;
+  });
 }
 
 export function getActiveWalletProfile(
