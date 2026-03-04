@@ -51,7 +51,7 @@ describe('core/wallet', () => {
     const result = await createWallet(config, { password: 'testpass' });
     expect(result.address).toBeTruthy();
     expect(result.mnemonic).toBeTruthy();
-    expect(result.mnemonic.split(' ').length).toBe(12);
+    expect(result.mnemonic?.split(' ').length).toBe(12);
   });
 
   test('createWallet stores encrypted wallet locally', async () => {

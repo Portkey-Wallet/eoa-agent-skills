@@ -3,6 +3,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import { getConfig } from '../../lib/config.js';
+import { fail } from './error.js';
+import { mergeSignerInput, signerContextSchema } from './signer-input.js';
 
 // Core imports
 import {
@@ -52,94 +54,6 @@ function ok(data: any) {
     content: [
       { type: 'text' as const, text: JSON.stringify(data, null, 2) },
     ],
-  };
-}
-
-function toMcpError(err: unknown): {
-  code: string;
-  message: string;
-  details?: unknown;
-  traceId?: string;
-} {
-  const fallback = {
-    code: 'UNKNOWN_ERROR',
-    message: String(err),
-    details: undefined,
-    traceId: undefined,
-  };
-  if (!err || typeof err !== 'object') return fallback;
-
-  const record = err as Record<string, unknown>;
-  const rawMessage = typeof record.message === 'string' ? record.message : fallback.message;
-  let code = typeof record.code === 'string' ? record.code : '';
-  let message = rawMessage;
-  const prefixed = rawMessage.match(/^([A-Z0-9_]+):\s*(.*)$/);
-  if (!code && prefixed) {
-    code = prefixed[1];
-    message = prefixed[2] || prefixed[1];
-  }
-  return {
-    code: code || 'UNKNOWN_ERROR',
-    message,
-    details: record.details,
-    traceId: typeof record.traceId === 'string' ? record.traceId : undefined,
-  };
-}
-
-function fail(err: any) {
-  const parsed = toMcpError(err);
-  return {
-    content: [
-      {
-        type: 'text' as const,
-        text: `[ERROR] ${parsed.code}: ${parsed.message}`,
-      },
-      {
-        type: 'text' as const,
-        text: JSON.stringify({ error: parsed }, null, 2),
-      }
-    ],
-    isError: true as const,
-  };
-}
-
-const signerContextSchema = z
-  .object({
-    signerMode: z.enum(['auto', 'explicit', 'context', 'env', 'daemon']).optional(),
-    walletType: z.enum(['EOA', 'CA']).optional(),
-    address: z.string().optional(),
-    password: z.string().optional(),
-    privateKey: z.string().optional(),
-    caHash: z.string().optional(),
-    caAddress: z.string().optional(),
-    network: z.enum(['mainnet', 'testnet']).optional(),
-  })
-  .optional()
-  .describe('Optional signer context. auto tries explicit → active context → env.');
-
-function mergeSignerInput(input: {
-  privateKey?: string;
-  address?: string;
-  password?: string;
-  signer?: {
-    signerMode?: 'auto' | 'explicit' | 'context' | 'env' | 'daemon';
-    privateKey?: string;
-    address?: string;
-    password?: string;
-  };
-  signerContext?: {
-    signerMode?: 'auto' | 'explicit' | 'context' | 'env' | 'daemon';
-    privateKey?: string;
-    address?: string;
-    password?: string;
-  };
-}) {
-  const override = input.signerContext || input.signer;
-  return {
-    privateKey: input.privateKey || override?.privateKey,
-    address: input.address || override?.address,
-    password: input.password || override?.password,
-    signerMode: override?.signerMode,
   };
 }
 

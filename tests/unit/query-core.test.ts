@@ -131,7 +131,7 @@ describe('core/query', () => {
       data: [{ symbol: 'ELF' }],
       totalRecordCount: 1,
       totalBalanceInUsd: '12.34',
-    });
+    } as any);
 
     const tokenBalance = await getTokenBalance(config, {
       address: 'ELF_addr_AELF',
@@ -151,7 +151,7 @@ describe('core/query', () => {
     expect(collections).toEqual({
       data: [{ symbol: 'NFT-1' }],
       totalRecordCount: 1,
-    });
+    } as any);
 
     const items = await getNFTItems(config, {
       address: 'ELF_addr_AELF',
@@ -160,14 +160,14 @@ describe('core/query', () => {
     expect(items).toEqual({
       data: [{ symbol: 'NFT-ITEM' }],
       totalRecordCount: 2,
-    });
+    } as any);
 
     const history = await getTransactionHistory(config, { address: 'ELF_addr_AELF' });
     expect(history).toEqual({
       data: [{ transactionId: 'tx1' }],
       totalRecordCount: 1,
       hasNextPage: true,
-    });
+    } as any);
   });
 
   test('getTransactionDetail throws when activity not found', async () => {
