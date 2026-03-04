@@ -31,6 +31,10 @@ import {
   type ActiveWalletProfile,
   type SignerContextInput,
 } from '../../lib/wallet-context.js';
+import {
+  SIGNER_ERROR_CODES,
+  formatSignerError,
+} from '../../lib/signer-error-codes.js';
 import * as path from 'node:path';
 
 // ============================================================
@@ -260,7 +264,10 @@ function resolveExplicitPrivateKey(params: ResolvePrivateKeyParams): string | nu
   const password = params.password || process.env.PORTKEY_WALLET_PASSWORD;
   if (!password) {
     throw new Error(
-      'SIGNER_PASSWORD_REQUIRED: password is required for explicit wallet address (set PORTKEY_WALLET_PASSWORD env or pass password param)',
+      formatSignerError(
+        SIGNER_ERROR_CODES.PASSWORD_REQUIRED,
+        'password is required for explicit wallet address (set PORTKEY_WALLET_PASSWORD env or pass password param)',
+      ),
     );
   }
   try {
@@ -268,7 +275,10 @@ function resolveExplicitPrivateKey(params: ResolvePrivateKeyParams): string | nu
     return decrypt(stored.AESEncryptPrivateKey, password);
   } catch (error) {
     throw new Error(
-      `SIGNER_CONTEXT_INVALID: failed to decrypt explicit wallet "${params.address}" (${error instanceof Error ? error.message : String(error)})`,
+      formatSignerError(
+        SIGNER_ERROR_CODES.CONTEXT_INVALID,
+        `failed to decrypt explicit wallet "${params.address}" (${error instanceof Error ? error.message : String(error)})`,
+      ),
     );
   }
 }
@@ -281,7 +291,10 @@ function resolveContextPrivateKey(params: ResolvePrivateKeyParams): string | nul
   const password = params.password || process.env.PORTKEY_WALLET_PASSWORD;
   if (!password) {
     throw new Error(
-      'SIGNER_PASSWORD_REQUIRED: password is required for active EOA wallet (set PORTKEY_WALLET_PASSWORD env or pass password param)',
+      formatSignerError(
+        SIGNER_ERROR_CODES.PASSWORD_REQUIRED,
+        'password is required for active EOA wallet (set PORTKEY_WALLET_PASSWORD env or pass password param)',
+      ),
     );
   }
   try {
@@ -289,7 +302,10 @@ function resolveContextPrivateKey(params: ResolvePrivateKeyParams): string | nul
     return decrypt(stored.AESEncryptPrivateKey, password);
   } catch (error) {
     throw new Error(
-      `SIGNER_CONTEXT_INVALID: failed to decrypt active wallet "${active.address}" (${error instanceof Error ? error.message : String(error)})`,
+      formatSignerError(
+        SIGNER_ERROR_CODES.CONTEXT_INVALID,
+        `failed to decrypt active wallet "${active.address}" (${error instanceof Error ? error.message : String(error)})`,
+      ),
     );
   }
 }
@@ -303,7 +319,10 @@ export function resolvePrivateKey(params: ResolvePrivateKeyParams): string {
 
   if (mode === 'daemon') {
     throw new Error(
-      'SIGNER_DAEMON_NOT_IMPLEMENTED: daemon signer provider is reserved for future release',
+      formatSignerError(
+        SIGNER_ERROR_CODES.DAEMON_NOT_IMPLEMENTED,
+        'daemon signer provider is reserved for future release',
+      ),
     );
   }
 
@@ -311,7 +330,10 @@ export function resolvePrivateKey(params: ResolvePrivateKeyParams): string {
     const explicit = resolveExplicitPrivateKey(params);
     if (explicit) return explicit;
     throw new Error(
-      'SIGNER_CONTEXT_NOT_FOUND: no explicit signer input provided (expected privateKey or address+password)',
+      formatSignerError(
+        SIGNER_ERROR_CODES.CONTEXT_NOT_FOUND,
+        'no explicit signer input provided (expected privateKey or address+password)',
+      ),
     );
   }
 
@@ -319,7 +341,10 @@ export function resolvePrivateKey(params: ResolvePrivateKeyParams): string {
     const context = resolveContextPrivateKey(params);
     if (context) return context;
     throw new Error(
-      'SIGNER_CONTEXT_NOT_FOUND: no active EOA wallet context available',
+      formatSignerError(
+        SIGNER_ERROR_CODES.CONTEXT_NOT_FOUND,
+        'no active EOA wallet context available',
+      ),
     );
   }
 
@@ -327,7 +352,10 @@ export function resolvePrivateKey(params: ResolvePrivateKeyParams): string {
     const envPk = resolveEnvPrivateKey();
     if (envPk) return envPk;
     throw new Error(
-      'SIGNER_CONTEXT_NOT_FOUND: no PORTKEY_PRIVATE_KEY available from env',
+      formatSignerError(
+        SIGNER_ERROR_CODES.CONTEXT_NOT_FOUND,
+        'no PORTKEY_PRIVATE_KEY available from env',
+      ),
     );
   }
 
@@ -351,7 +379,10 @@ export function resolvePrivateKey(params: ResolvePrivateKeyParams): string {
   }
 
   throw new Error(
-    'SIGNER_CONTEXT_NOT_FOUND: no signer available from explicit/context/env',
+    formatSignerError(
+      SIGNER_ERROR_CODES.CONTEXT_NOT_FOUND,
+      'no signer available from explicit/context/env',
+    ),
   );
 }
 

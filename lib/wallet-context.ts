@@ -12,6 +12,7 @@ import {
 } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
+import { SIGNER_ERROR_CODES, formatSignerError } from './signer-error-codes.js';
 
 export type WalletType = 'EOA' | 'CA';
 export type WalletSource = 'eoa-local' | 'ca-keystore' | 'env';
@@ -230,7 +231,10 @@ function withContextLock<T>(filePath: string, action: () => T): T {
       retries += 1;
       if (retries > LOCK_MAX_RETRIES) {
         throw new Error(
-          `SIGNER_CONTEXT_LOCK_TIMEOUT: failed to acquire context lock after ${LOCK_MAX_RETRIES} retries`,
+          formatSignerError(
+            SIGNER_ERROR_CODES.CONTEXT_LOCK_TIMEOUT,
+            `failed to acquire context lock after ${LOCK_MAX_RETRIES} retries`,
+          ),
         );
       }
       sleepMs(LOCK_RETRY_INTERVAL_MS);
@@ -238,7 +242,10 @@ function withContextLock<T>(filePath: string, action: () => T): T {
   }
 
   throw new Error(
-    `SIGNER_CONTEXT_LOCK_TIMEOUT: failed to acquire context lock after ${LOCK_MAX_RETRIES} retries`,
+    formatSignerError(
+      SIGNER_ERROR_CODES.CONTEXT_LOCK_TIMEOUT,
+      `failed to acquire context lock after ${LOCK_MAX_RETRIES} retries`,
+    ),
   );
 }
 
