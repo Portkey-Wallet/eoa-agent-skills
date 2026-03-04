@@ -2,6 +2,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
+import packageJson from '../../package.json';
 import { getConfig } from '../../lib/config.js';
 import { fail } from './error.js';
 import { mergeSignerInput, signerContextSchema } from './signer-input.js';
@@ -46,7 +47,7 @@ import {
 
 const server = new McpServer({
   name: 'portkey-eoa-agent-skills',
-  version: '1.0.0',
+  version: packageJson.version,
 });
 
 function ok(data: any) {

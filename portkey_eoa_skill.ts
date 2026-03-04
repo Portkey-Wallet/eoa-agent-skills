@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
 import { Command } from 'commander';
+import packageJson from './package.json';
 import { getConfig } from './lib/config.js';
 import { outputSuccess, outputError } from './cli-helpers.js';
 
@@ -33,7 +34,7 @@ const program = new Command();
 
 program
   .name('portkey-eoa')
-  .version('1.0.0')
+  .version(packageJson.version)
   .description('Portkey EOA Wallet Agent Skills CLI')
   .option('--network <network>', 'Network (default: mainnet)', 'mainnet');
 
