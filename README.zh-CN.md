@@ -127,6 +127,13 @@ IronClaw 默认会做两件事：
 当前 MCP server 已为写操作补齐 destructive annotations，IronClaw 可以据此在转账和其它写链上调用前请求 approval。
 为兼容当前 IronClaw 源码，这里的 MCP annotations 会同时输出标准 MCP 的 camelCase 字段和 IronClaw 兼容的 snake_case 字段，因为 IronClaw 目前按 snake_case 解析 MCP approval hints。
 
+远程激活契约：
+
+- GitHub repo/tree URL 只用于 discovery，不是最终的 IronClaw 安装载体。
+- 推荐的 IronClaw npm 激活命令：`bunx -p @portkey/eoa-agent-skills portkey-setup ironclaw`
+- OpenClaw 若有 ClawHub / managed install 则优先使用；否则回退到 `bunx -p @portkey/eoa-agent-skills portkey-setup openclaw`
+- 本地 repo checkout 仅保留给开发阶段 smoke test。
+
 ### CLI 使用
 
 ```bash

@@ -127,6 +127,13 @@ Important trust model note:
 The MCP server exposes destructive annotations for write operations so IronClaw can request approval before transfers and other state-changing calls.
 For compatibility, the MCP server currently emits both standard MCP camelCase annotations and IronClaw-compatible snake_case annotations because the current IronClaw source parses snake_case fields for MCP approval hints.
 
+Remote activation contract:
+
+- GitHub repo/tree URLs are discovery sources only, not the final IronClaw install payload.
+- Preferred IronClaw activation from npm: `bunx -p @portkey/eoa-agent-skills portkey-setup ironclaw`
+- Prefer ClawHub / managed install for OpenClaw when available; otherwise use `bunx -p @portkey/eoa-agent-skills portkey-setup openclaw`
+- Local repo checkout remains a development smoke-test path only.
+
 ### CLI Usage
 
 ```bash
