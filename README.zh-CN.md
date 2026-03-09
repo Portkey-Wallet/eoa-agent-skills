@@ -45,6 +45,9 @@ bun run bin/setup.ts cursor
 # Cursor（全局）
 bun run bin/setup.ts cursor --global
 
+# IronClaw
+bun run bin/setup.ts ironclaw
+
 # OpenClaw（输出配置）
 bun run bin/setup.ts openclaw
 
@@ -100,6 +103,30 @@ bun run src/mcp/server.ts
 }
 ```
 
+### IronClaw
+
+```bash
+# 安装 trusted skill + stdio MCP server
+bun run bin/setup.ts ironclaw
+
+# 移除 IronClaw 集成
+bun run bin/setup.ts uninstall ironclaw
+```
+
+IronClaw 默认会做两件事：
+
+- 向 `~/.ironclaw/mcp-servers.json` 写入一个 stdio MCP server
+- 把当前仓库的 `SKILL.md` 复制到 `~/.ironclaw/skills/portkey-eoa-agent-skills/SKILL.md`
+
+关于 trust model 的重要说明：
+
+- 需要钱包写操作时，务必使用上面的 trusted skill 路径。
+- 如果你把这个包放进 `~/.ironclaw/installed_skills/`，不要期待它还能正常执行转账、Approve、创建钱包等写操作。
+- IronClaw 会把 installed skill 的工具权限衰减为只读，这会表现成“只能查，不能写”，即使 MCP server 本身是可用的。
+
+当前 MCP server 已为写操作补齐 destructive annotations，IronClaw 可以据此在转账和其它写链上调用前请求 approval。
+为兼容当前 IronClaw 源码，这里的 MCP annotations 会同时输出标准 MCP 的 camelCase 字段和 IronClaw 兼容的 snake_case 字段，因为 IronClaw 目前按 snake_case 解析 MCP approval hints。
+
 ### CLI 使用
 
 ```bash
@@ -149,6 +176,8 @@ console.log('交易ID:', result.transactionId);
 ```
 
 ## MCP Tools（共 23 个）
+
+chain list 目前仍然只通过 CLI/SDK 提供：使用 `bun run portkey_eoa_skill.ts query chains` 或 `getChainInfo()`。这个包暂时不会把它暴露成 MCP tool。
 
 ### 钱包管理（8）
 - `portkey_create_wallet` — 创建新钱包并加密存储
@@ -200,6 +229,15 @@ bun test                    # 所有测试
 bun test tests/unit/        # 单元测试
 bun run tests/e2e/mcp-verify.ts  # MCP 验证
 ```
+
+### IronClaw Smoke Test
+
+等你本地装好 IronClaw 后，按下面最小流程验证：
+
+1. `bun run bin/setup.ts ironclaw`
+2. 启动 IronClaw，先问一个只读问题，比如“列出我的 EOA 钱包”或“查询 ELF 余额”
+3. 再问一个写操作，比如“转账 ELF”，确认执行前会进入 approval
+4. 再问一个 CA 场景问题，比如“guardian recovery”，确认默认不会路由到 EOA skill
 
 ## Known Issues
 

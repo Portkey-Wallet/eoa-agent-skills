@@ -45,6 +45,9 @@ bun run bin/setup.ts cursor
 # Cursor (global)
 bun run bin/setup.ts cursor --global
 
+# IronClaw
+bun run bin/setup.ts ironclaw
+
 # OpenClaw (output config)
 bun run bin/setup.ts openclaw
 
@@ -100,6 +103,30 @@ Or add to your MCP client config (see `mcp-config.example.json`):
 }
 ```
 
+### IronClaw
+
+```bash
+# Install trusted skill + stdio MCP server
+bun run bin/setup.ts ironclaw
+
+# Remove IronClaw integration
+bun run bin/setup.ts uninstall ironclaw
+```
+
+The IronClaw setup does two things by default:
+
+- Writes a stdio MCP server entry to `~/.ironclaw/mcp-servers.json`
+- Copies this repo's `SKILL.md` to `~/.ironclaw/skills/portkey-eoa-agent-skills/SKILL.md`
+
+Important trust model note:
+
+- Use the trusted skill path above for write-capable wallet operations.
+- Do **not** rely on `~/.ironclaw/installed_skills/` for this package if you need transfers, approvals, wallet creation, or other write actions.
+- IronClaw attenuates installed skills to read-only tools, which can make the agent appear to "query only" even though the MCP server is available.
+
+The MCP server exposes destructive annotations for write operations so IronClaw can request approval before transfers and other state-changing calls.
+For compatibility, the MCP server currently emits both standard MCP camelCase annotations and IronClaw-compatible snake_case annotations because the current IronClaw source parses snake_case fields for MCP approval hints.
+
 ### CLI Usage
 
 ```bash
@@ -149,6 +176,8 @@ console.log('TX:', result.transactionId);
 ```
 
 ## MCP Tools (23 total)
+
+Chain list discovery remains CLI/SDK only via `bun run portkey_eoa_skill.ts query chains` or `getChainInfo()`. It is intentionally not exposed as an MCP tool in this package.
 
 ### Wallet Management (8)
 - `portkey_create_wallet` — Create new wallet with encrypted local storage
@@ -200,6 +229,15 @@ bun test                    # All tests
 bun test tests/unit/        # Unit tests
 bun run tests/e2e/mcp-verify.ts  # MCP verification
 ```
+
+### IronClaw Smoke Test
+
+After you install IronClaw locally, run this minimal verification:
+
+1. `bun run bin/setup.ts ironclaw`
+2. Start IronClaw and ask for a read-only action such as "list my EOA wallets" or "check ELF balance"
+3. Ask for a write action such as "transfer ELF" and confirm IronClaw pauses for approval before execution
+4. Ask a CA-specific question such as "guardian recovery" and confirm the EOA skill is not the default route
 
 ## Known Issues
 
