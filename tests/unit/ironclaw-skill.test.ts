@@ -104,7 +104,8 @@ describe('IronClaw skill prompt', () => {
     const { body } = await getSkillParts();
     expect(body).toContain('Default to the EOA wallet path');
     expect(body).toContain('Require explicit user confirmation before write operations');
-    expect(body).toContain('Never print private keys, mnemonics, or tokens');
+    expect(body).toContain('Never print private keys, mnemonics');
+    expect(body).toContain('tokens in channel outputs');
     expect(body).toContain('Prefer the shared active wallet context');
   });
 });

@@ -3,6 +3,7 @@ node_modules/
 
 # Build output
 dist/
+artifacts/
 
 # Environment
 .env
@@ -32,3 +33,6 @@ bun.lockb
 coverage/
 
 badge/
+
+# Rust / IronClaw WASM
+target/

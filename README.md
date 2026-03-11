@@ -45,9 +45,6 @@ bun run bin/setup.ts cursor
 # Cursor (global)
 bun run bin/setup.ts cursor --global
 
-# IronClaw
-bun run bin/setup.ts ironclaw
-
 # OpenClaw (output config)
 bun run bin/setup.ts openclaw
 
@@ -57,6 +54,24 @@ bun run bin/setup.ts openclaw --config-path /path/to/openclaw-config.json
 # Check status
 bun run bin/setup.ts list
 ```
+
+### IronClaw Native WASM (Recommended)
+
+```bash
+# Build staged assets and package the release bundle locally
+bun run ironclaw:wasm:build
+bun run ironclaw:wasm:bundle
+
+# Install the staged local artifact into IronClaw
+ironclaw tool install ./artifacts/ironclaw/portkey-eoa-ironclaw.wasm
+```
+
+Release assets follow this naming contract:
+
+- `portkey-eoa-ironclaw-v<version>-wasm32-wasip2.tar.gz`
+- `portkey-eoa-ironclaw-v<version>-wasm32-wasip2.sha256`
+- `portkey-eoa-ironclaw.wasm`
+- `portkey-eoa-ironclaw.capabilities.json`
 
 ### Environment Variables
 
@@ -106,31 +121,31 @@ Or add to your MCP client config (see `mcp-config.example.json`):
 ### IronClaw
 
 ```bash
-# Install trusted skill + stdio MCP server
-bun run bin/setup.ts ironclaw
-
-# Remove IronClaw integration
-bun run bin/setup.ts uninstall ironclaw
+# Local development install
+ironclaw tool install ./artifacts/ironclaw/portkey-eoa-ironclaw.wasm
 ```
 
-The IronClaw setup does two things by default:
+Native-wasm notes:
 
-- Writes a stdio MCP server entry to `~/.ironclaw/mcp-servers.json`
-- Copies this repo's `SKILL.md` to `~/.ironclaw/skills/portkey-eoa-agent-skills/SKILL.md`
-
-Important trust model note:
-
-- Use the trusted skill path above for write-capable wallet operations.
-- Do **not** rely on `~/.ironclaw/installed_skills/` for this package if you need transfers, approvals, wallet creation, or other write actions.
-- IronClaw attenuates installed skills to read-only tools, which can make the agent appear to "query only" even though the MCP server is available.
-
-The MCP server exposes destructive annotations for write operations so IronClaw can request approval before transfers and other state-changing calls.
-For compatibility, the MCP server currently emits both standard MCP camelCase annotations and IronClaw-compatible snake_case annotations because the current IronClaw source parses snake_case fields for MCP approval hints.
+- The EOA native tool lives in `ironclaw-wasm/` and is published as GitHub Release assets.
+- The primary release payload is a versioned `.tar.gz` bundle that contains exactly `portkey-eoa-ironclaw.wasm` and `portkey-eoa-ironclaw.capabilities.json`.
+- Current native-wasm state is isolated from the Bun/MCP wallet store.
+- The current experimental build implements the full 23-action EOA surface in isolated native-wasm state, including wallet lifecycle, asset queries, contract calls, transfers, approvals, fee estimation, and eBridge flows.
+- The native chain layer is now backed by `aelf-web3.rust@0.1.0-alpha.1` instead of the earlier hand-rolled AElf transaction helpers.
+- Chain write actions currently use submit-plus-immediate-status-check semantics in native-wasm; mined-state parity with the Bun runtime still needs real IronClaw validation.
+- IronClaw runtime delivery is wasm-only in this rollout.
+- The native tool uses IronClaw-native capabilities and a `portkey-eoa/` workspace namespace.
+- Native wallet lifecycle actions require an explicit `password`.
+- Native-wasm keeps the same public wallet action contracts as JS/MCP and adds keystore-backed `walletExport` (`portkey-eoa-export-v2`) for native recovery.
+- Compatible wallet actions can still return mnemonic/privateKey fields; treat them as one-time tool output and do not repeat them in conversational summaries.
+- ClawHub should be treated as discovery / install-shell only, not the final write-capable runtime for this skill.
 
 Remote activation contract:
 
 - GitHub repo/tree URLs are discovery sources only, not the final IronClaw install payload.
-- Preferred IronClaw activation from npm: `bunx -p @portkey/eoa-agent-skills portkey-setup ironclaw`
+- Preferred IronClaw activation is the GitHub Release bundle URL: download the versioned `.tar.gz` asset and import it through IronClaw's WASM extension flow.
+- Local smoke tests can use the staged bare artifact at `./artifacts/ironclaw/portkey-eoa-ironclaw.wasm`.
+- Preferred ClawHub role is discovery / install-shell that routes users to the native-wasm artifact.
 - Prefer ClawHub / managed install for OpenClaw when available; otherwise use `bunx -p @portkey/eoa-agent-skills portkey-setup openclaw`
 - Local repo checkout remains a development smoke-test path only.
 
@@ -188,10 +203,10 @@ Chain list discovery remains CLI/SDK only via `bun run portkey_eoa_skill.ts quer
 
 ### Wallet Management (8)
 - `portkey_create_wallet` — Create new wallet with encrypted local storage
-- `portkey_import_wallet` — Import from mnemonic or private key
+- `portkey_import_wallet` — Import from mnemonic, private key, or encrypted `walletExport`
 - `portkey_get_wallet_info` — View wallet public info
 - `portkey_list_wallets` — List all local wallets
-- `portkey_backup_wallet` — Export wallet credentials
+- `portkey_backup_wallet` — Export compatible mnemonic/privateKey fields and additive encrypted `walletExport`
 - `portkey_delete_wallet` — Delete a local wallet (requires password)
 - `portkey_get_active_wallet` — Read shared active wallet context
 - `portkey_set_active_wallet` — Set shared active wallet context manually
@@ -241,10 +256,11 @@ bun run tests/e2e/mcp-verify.ts  # MCP verification
 
 After you install IronClaw locally, run this minimal verification:
 
-1. `bun run bin/setup.ts ironclaw`
-2. Start IronClaw and ask for a read-only action such as "list my EOA wallets" or "check ELF balance"
-3. Ask for a write action such as "transfer ELF" and confirm IronClaw pauses for approval before execution
-4. Ask a CA-specific question such as "guardian recovery" and confirm the EOA skill is not the default route
+1. `bun run ironclaw:wasm:build`
+2. `bun run ironclaw:wasm:bundle`
+3. `ironclaw tool install ./artifacts/ironclaw/portkey-eoa-ironclaw.wasm`
+4. Start IronClaw and ask for a read-only action such as "check ELF balance" or "show token prices"
+5. Verify ClawHub / installed-skill discovery does not claim direct write-capable runtime access
 
 ## Known Issues
 
