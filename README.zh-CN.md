@@ -45,9 +45,6 @@ bun run bin/setup.ts cursor
 # Cursor（全局）
 bun run bin/setup.ts cursor --global
 
-# IronClaw
-bun run bin/setup.ts ironclaw
-
 # OpenClaw（输出配置）
 bun run bin/setup.ts openclaw
 
@@ -57,6 +54,24 @@ bun run bin/setup.ts openclaw --config-path /path/to/openclaw-config.json
 # 查看配置状态
 bun run bin/setup.ts list
 ```
+
+### IronClaw Native WASM（推荐）
+
+```bash
+# 本地构建 staged assets 并打 release bundle
+bun run ironclaw:wasm:build
+bun run ironclaw:wasm:bundle
+
+# 安装 staged 本地产物到 IronClaw
+ironclaw tool install ./artifacts/ironclaw/portkey-eoa-ironclaw.wasm
+```
+
+Release artifact 命名契约：
+
+- `portkey-eoa-ironclaw-v<version>-wasm32-wasip2.tar.gz`
+- `portkey-eoa-ironclaw-v<version>-wasm32-wasip2.sha256`
+- `portkey-eoa-ironclaw.wasm`
+- `portkey-eoa-ironclaw.capabilities.json`
 
 ### 环境变量
 
@@ -106,31 +121,31 @@ bun run src/mcp/server.ts
 ### IronClaw
 
 ```bash
-# 安装 trusted skill + stdio MCP server
-bun run bin/setup.ts ironclaw
-
-# 移除 IronClaw 集成
-bun run bin/setup.ts uninstall ironclaw
+# 本地开发调试安装
+ironclaw tool install ./artifacts/ironclaw/portkey-eoa-ironclaw.wasm
 ```
 
-IronClaw 默认会做两件事：
+native-wasm 说明：
 
-- 向 `~/.ironclaw/mcp-servers.json` 写入一个 stdio MCP server
-- 把当前仓库的 `SKILL.md` 复制到 `~/.ironclaw/skills/portkey-eoa-agent-skills/SKILL.md`
-
-关于 trust model 的重要说明：
-
-- 需要钱包写操作时，务必使用上面的 trusted skill 路径。
-- 如果你把这个包放进 `~/.ironclaw/installed_skills/`，不要期待它还能正常执行转账、Approve、创建钱包等写操作。
-- IronClaw 会把 installed skill 的工具权限衰减为只读，这会表现成“只能查，不能写”，即使 MCP server 本身是可用的。
-
-当前 MCP server 已为写操作补齐 destructive annotations，IronClaw 可以据此在转账和其它写链上调用前请求 approval。
-为兼容当前 IronClaw 源码，这里的 MCP annotations 会同时输出标准 MCP 的 camelCase 字段和 IronClaw 兼容的 snake_case 字段，因为 IronClaw 目前按 snake_case 解析 MCP approval hints。
+- EOA native tool 位于 `ironclaw-wasm/`，通过 GitHub Release artifacts 分发。
+- 正式 release 主产物是一个 versioned `.tar.gz` bundle，内部固定只包含 `portkey-eoa-ironclaw.wasm` 和 `portkey-eoa-ironclaw.capabilities.json`。
+- 当前 native-wasm 状态与 Bun/MCP 钱包状态隔离。
+- 当前 experimental native-wasm 已在隔离状态下补齐完整 23 个 EOA action，包括钱包生命周期、资产查询、合约调用、转账、授权、手续费估算，以及 eBridge 流程。
+- native 的链能力底座已经切到 `aelf-web3.rust@0.1.0-alpha.1`，不再继续维护旧的自研 AElf 交易实现。
+- 当前链上写操作在 native-wasm 中采用“提交后立即查一次状态”的语义；是否能稳定拿到 mined 状态，仍需要真实 IronClaw runtime 验证。
+- 本轮 IronClaw 分发是 wasm-only。
+- native tool 使用 IronClaw 原生 capabilities 和 `portkey-eoa/` workspace 命名空间。
+- native 钱包生命周期操作必须显式提供 `password`。
+- native-wasm 对外保持与 JS/MCP 一致的钱包 action public contract，并新增 keystore-backed `walletExport`（`portkey-eoa-export-v2`）作为 native 恢复载荷。
+- 兼容模式下的钱包 action 仍可能返回 `mnemonic` / `privateKey`；这些都视为一次性敏感 tool output，不应在对话总结里重复输出。
+- ClawHub 对这个 skill 的角色是 discovery / install shell，不是最终的写能力运行时。
 
 远程激活契约：
 
 - GitHub repo/tree URL 只用于 discovery，不是最终的 IronClaw 安装载体。
-- 推荐的 IronClaw npm 激活命令：`bunx -p @portkey/eoa-agent-skills portkey-setup ironclaw`
+- 推荐的 IronClaw 激活方式是 GitHub Release 上的 versioned `.tar.gz` bundle URL，通过 IronClaw 的 WASM extension 导入流程安装。
+- 本地 smoke test 仍可直接使用 `./artifacts/ironclaw/portkey-eoa-ironclaw.wasm`。
+- 推荐的 ClawHub 角色是 discovery / install-shell，引导用户安装 native-wasm artifact。
 - OpenClaw 若有 ClawHub / managed install 则优先使用；否则回退到 `bunx -p @portkey/eoa-agent-skills portkey-setup openclaw`
 - 本地 repo checkout 仅保留给开发阶段 smoke test。
 
@@ -188,10 +203,10 @@ chain list 目前仍然只通过 CLI/SDK 提供：使用 `bun run portkey_eoa_sk
 
 ### 钱包管理（8）
 - `portkey_create_wallet` — 创建新钱包并加密存储
-- `portkey_import_wallet` — 导入钱包（助记词/私钥）
+- `portkey_import_wallet` — 导入钱包（助记词/私钥/加密 `walletExport`）
 - `portkey_get_wallet_info` — 查看钱包公开信息
 - `portkey_list_wallets` — 列出所有本地钱包
-- `portkey_backup_wallet` — 导出钱包凭证
+- `portkey_backup_wallet` — 导出兼容的 `mnemonic` / `privateKey`，并附带加密 `walletExport`
 - `portkey_delete_wallet` — 删除本地钱包（需密码验证）
 - `portkey_get_active_wallet` — 读取共享 active wallet context
 - `portkey_set_active_wallet` — 手动设置共享 active wallet context
@@ -241,10 +256,11 @@ bun run tests/e2e/mcp-verify.ts  # MCP 验证
 
 等你本地装好 IronClaw 后，按下面最小流程验证：
 
-1. `bun run bin/setup.ts ironclaw`
-2. 启动 IronClaw，先问一个只读问题，比如“列出我的 EOA 钱包”或“查询 ELF 余额”
-3. 再问一个写操作，比如“转账 ELF”，确认执行前会进入 approval
-4. 再问一个 CA 场景问题，比如“guardian recovery”，确认默认不会路由到 EOA skill
+1. `bun run ironclaw:wasm:build`
+2. `bun run ironclaw:wasm:bundle`
+3. `ironclaw tool install ./artifacts/ironclaw/portkey-eoa-ironclaw.wasm`
+4. 启动 IronClaw，先问一个只读问题，比如“查询 ELF 余额”或“查看 token price”
+5. 确认 ClawHub / installed-skill discovery 不会误导为“可直接执行写能力”
 
 ## Known Issues
 

@@ -1,0 +1,62 @@
+{
+  "version": "1.2.4",
+  "wit_version": "0.3.0",
+  "capabilities": {
+    "http": {
+      "allowlist": [
+        {
+          "host": "eoa-portkey.portkey.finance",
+          "path_prefix": "/api/app/",
+          "methods": [
+            "GET",
+            "POST"
+          ]
+        },
+        {
+          "host": "*.portkey.finance",
+          "path_prefix": "/api/",
+          "methods": [
+            "GET",
+            "POST"
+          ]
+        },
+        {
+          "host": "*.aelf.io",
+          "path_prefix": "/api/blockChain/",
+          "methods": [
+            "GET",
+            "POST"
+          ]
+        },
+        {
+          "host": "*.aelf.com",
+          "path_prefix": "/api/blockChain/",
+          "methods": [
+            "GET",
+            "POST"
+          ]
+        }
+      ],
+      "rate_limit": {
+        "requests_per_minute": 30,
+        "requests_per_hour": 500
+      },
+      "timeout_secs": 30
+    },
+    "tool_invoke": {
+      "aliases": {
+        "memory_read": "memory_read",
+        "memory_write": "memory_write"
+      },
+      "rate_limit": {
+        "requests_per_minute": 120,
+        "requests_per_hour": 1000
+      }
+    },
+    "workspace": {
+      "allowed_prefixes": [
+        "portkey-eoa/"
+      ]
+    }
+  }
+}

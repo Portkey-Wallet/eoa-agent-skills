@@ -1,0 +1,99 @@
+name: Release IronClaw WASM Bundle
+
+on:
+  pull_request:
+    paths:
+      - 'ironclaw-wasm/**'
+      - 'scripts/release/**'
+      - '.github/workflows/ironclaw-wasm.yml'
+      - 'package.json'
+      - 'bun.lock'
+      - 'bun.lockb'
+      - 'tests/unit/ironclaw-wasm.test.ts'
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+    paths:
+      - 'ironclaw-wasm/**'
+      - 'scripts/release/**'
+      - '.github/workflows/ironclaw-wasm.yml'
+      - 'package.json'
+      - 'bun.lock'
+      - 'bun.lockb'
+      - 'tests/unit/ironclaw-wasm.test.ts'
+  workflow_dispatch:
+
+jobs:
+  release-ironclaw-wasm:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.9
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip2
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install wasm toolchain helpers
+        run: |
+          cargo install wasm-tools --locked
+          sudo apt-get update
+          sudo apt-get install -y binaryen
+
+      - name: Install JS dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Validate tag version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          PACKAGE_VERSION="$(awk -F '"' '$2 == "version" { print $4; exit }' package.json)"
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          if [ "$PACKAGE_VERSION" != "$TAG_VERSION" ]; then
+            echo "Tag version ($TAG_VERSION) does not match package.json version ($PACKAGE_VERSION)" >&2
+            exit 1
+          fi
+
+      - name: Run Rust tests
+        run: bun run ironclaw:wasm:test
+
+      - name: Run bundle contract tests
+        run: bun run ironclaw:wasm:check
+
+      - name: Build staged WASM assets
+        run: bun run ironclaw:wasm:build
+
+      - name: Optimize staged WASM
+        run: |
+          wasm-opt -Oz \
+            -o artifacts/ironclaw/portkey-eoa-ironclaw.wasm \
+            artifacts/ironclaw/portkey-eoa-ironclaw.wasm
+
+      - name: Validate staged WASM
+        run: wasm-tools validate artifacts/ironclaw/portkey-eoa-ironclaw.wasm
+
+      - name: Package tar.gz bundle and checksum
+        run: bun run ironclaw:wasm:bundle
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: portkey-eoa-ironclaw-wasm-bundle
+          path: artifacts/ironclaw/*
+
+      - name: Publish release assets
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/ironclaw/*
+          generate_release_notes: true
