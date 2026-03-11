@@ -1,6 +1,6 @@
 ---
 name: "portkey-eoa-agent-skills"
-version: "1.2.4"
+version: "1.2.5"
 description: "Portkey EOA wallet and asset operations for aelf agents."
 activation:
   keywords:
