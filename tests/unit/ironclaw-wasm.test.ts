@@ -111,7 +111,7 @@ describe('IronClaw native-wasm contract', () => {
     expect(pkg.version).toBe(cargoVersion);
   });
 
-  test('includes a dedicated workflow to build, bundle, optimize, and publish the native wasm artifact', async () => {
+  test('includes a dedicated workflow to build, validate, and publish the native wasm artifact', async () => {
     const workflow = await Bun.file(WORKFLOW_PATH).text();
     expect(workflow).toContain('bun run ironclaw:wasm:test');
     expect(workflow).toContain('bun run ironclaw:wasm:check');
@@ -120,7 +120,8 @@ describe('IronClaw native-wasm contract', () => {
     expect(workflow).toContain('bun-version: 1.3.9');
     expect(workflow).toContain('Swatinem/rust-cache@v2');
     expect(workflow).toContain('cargo install wasm-tools --locked');
-    expect(workflow).toContain('wasm-opt -Oz');
+    expect(workflow).not.toContain('wasm-opt -Oz');
+    expect(workflow).not.toContain('binaryen');
     expect(workflow).toContain('wasm-tools validate');
     expect(workflow).toContain('artifacts/ironclaw/*');
     expect(workflow).toContain('portkey-eoa-ironclaw-wasm-bundle');

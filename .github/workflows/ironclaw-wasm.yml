@@ -48,8 +48,6 @@ jobs:
       - name: Install wasm toolchain helpers
         run: |
           cargo install wasm-tools --locked
-          sudo apt-get update
-          sudo apt-get install -y binaryen
 
       - name: Install JS dependencies
         run: bun install --frozen-lockfile
@@ -72,12 +70,6 @@ jobs:
 
       - name: Build staged WASM assets
         run: bun run ironclaw:wasm:build
-
-      - name: Optimize staged WASM
-        run: |
-          wasm-opt -Oz \
-            -o artifacts/ironclaw/portkey-eoa-ironclaw.wasm \
-            artifacts/ironclaw/portkey-eoa-ironclaw.wasm
 
       - name: Validate staged WASM
         run: wasm-tools validate artifacts/ironclaw/portkey-eoa-ironclaw.wasm
