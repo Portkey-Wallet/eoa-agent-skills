@@ -19,7 +19,6 @@ import {
   setActiveWallet,
 } from '../core/wallet.js';
 import {
-  getChainInfo,
   getTokenList,
   getTokenBalance,
   getTokenPrices,
@@ -50,6 +49,23 @@ const server = new McpServer({
   version: packageJson.version,
 });
 
+const READ_ONLY_ANNOTATIONS = {
+  readOnlyHint: true,
+  read_only_hint: true,
+} as const;
+
+const LOCAL_WRITE_ANNOTATIONS = {
+  destructiveHint: true,
+  destructive_hint: true,
+} as const;
+
+const NETWORK_WRITE_ANNOTATIONS = {
+  destructiveHint: true,
+  destructive_hint: true,
+  openWorldHint: true,
+  side_effects_hint: true,
+} as const;
+
 function ok(data: any) {
   return {
     content: [
@@ -65,6 +81,7 @@ function ok(data: any) {
 server.registerTool(
   'portkey_create_wallet',
   {
+    annotations: LOCAL_WRITE_ANNOTATIONS,
     description:
       'Create a new EOA wallet on aelf blockchain. Generates a mnemonic and private key, encrypts them with a password, and stores the wallet locally.\n\nPassword behavior: If password is omitted, a strong password is auto-generated and returned in the response. After creation, ask the user if they want to persist the password by setting PORTKEY_WALLET_PASSWORD in their environment config. If they decline, remind them to save the password securely — it cannot be recovered.\n\nMnemonic safety: For channel-based environments (Slack, Discord, OpenClaw channels), set redactMnemonic=true so the mnemonic is NOT returned in the response. The mnemonic is already AES-encrypted in the wallet file and can be recovered later via wallet backup with the correct password. For local AI tools (Claude Desktop, Cursor), returning the mnemonic directly is acceptable.',
     inputSchema: {
@@ -103,6 +120,7 @@ server.registerTool(
 server.registerTool(
   'portkey_import_wallet',
   {
+    annotations: LOCAL_WRITE_ANNOTATIONS,
     description:
       'Import an existing wallet using a 12-word mnemonic phrase or a 64-character hex private key. Encrypts and stores the wallet locally.\n\nPassword behavior: If password is omitted, a strong password is auto-generated and returned. After import, ask the user if they want to persist the password by setting PORTKEY_WALLET_PASSWORD in their environment. If they decline, remind them to save it securely.\n\nSecurity: Never echo the user\'s mnemonic or private key back in channel-based conversations (Slack, Discord, OpenClaw).',
     inputSchema: {
@@ -142,6 +160,7 @@ server.registerTool(
 server.registerTool(
   'portkey_get_wallet_info',
   {
+    annotations: READ_ONLY_ANNOTATIONS,
     description:
       'Get public information about a locally stored wallet (address, public key, name, network). Does not expose any secrets. Use to verify a wallet exists and see its details.',
     inputSchema: {
@@ -165,6 +184,7 @@ server.registerTool(
 server.registerTool(
   'portkey_list_wallets',
   {
+    annotations: READ_ONLY_ANNOTATIONS,
     description:
       'List all locally stored wallets with their public info (address, name, network, creation date). Does not expose private keys or mnemonics. Use to see what wallets are available.',
     inputSchema: {
@@ -187,6 +207,7 @@ server.registerTool(
 server.registerTool(
   'portkey_backup_wallet',
   {
+    annotations: LOCAL_WRITE_ANNOTATIONS,
     description:
       'Export the mnemonic and/or private key of a locally stored wallet. DANGEROUS: reveals secret credentials. Use only when the user explicitly requests a backup. Requires the wallet password.',
     inputSchema: {
@@ -211,6 +232,7 @@ server.registerTool(
 server.registerTool(
   'portkey_delete_wallet',
   {
+    annotations: LOCAL_WRITE_ANNOTATIONS,
     description:
       'Delete a locally stored wallet file. Requires the wallet password for verification — the password must be correct before the wallet is removed. Use when a user explicitly wants to remove a wallet from local storage.',
     inputSchema: {
@@ -239,6 +261,7 @@ server.registerTool(
 server.registerTool(
   'portkey_get_active_wallet',
   {
+    annotations: READ_ONLY_ANNOTATIONS,
     description:
       'Get the shared active wallet context used by cross-skill signer resolution.',
     inputSchema: {},
@@ -255,6 +278,7 @@ server.registerTool(
 server.registerTool(
   'portkey_set_active_wallet',
   {
+    annotations: LOCAL_WRITE_ANNOTATIONS,
     description:
       'Set shared active wallet context manually for cross-skill signer resolution.',
     inputSchema: {
@@ -293,6 +317,7 @@ server.registerTool(
 server.registerTool(
   'portkey_get_token_list',
   {
+    annotations: READ_ONLY_ANNOTATIONS,
     description:
       'Get the full token list with balances and USD values for a wallet address. Returns all tokens the address holds across chains. Use to show a portfolio overview.',
     inputSchema: {
@@ -320,6 +345,7 @@ server.registerTool(
 server.registerTool(
   'portkey_get_token_balance',
   {
+    annotations: READ_ONLY_ANNOTATIONS,
     description:
       'Get the balance of a specific token for a wallet address on a specific chain. Returns balance, USD value, and decimals. Use when checking a single token balance.',
     inputSchema: {
@@ -347,6 +373,7 @@ server.registerTool(
 server.registerTool(
   'portkey_get_token_prices',
   {
+    annotations: READ_ONLY_ANNOTATIONS,
     description:
       'Get current USD prices for one or more token symbols. Returns an array of {symbol, priceInUsd}. Use for price checks or portfolio valuation.',
     inputSchema: {
@@ -372,6 +399,7 @@ server.registerTool(
 server.registerTool(
   'portkey_get_nft_collections',
   {
+    annotations: READ_ONLY_ANNOTATIONS,
     description:
       'Get NFT collections owned by a wallet address. Returns collection name, image, item count, and symbol. Use to browse NFT holdings at the collection level.',
     inputSchema: {
@@ -395,6 +423,7 @@ server.registerTool(
 server.registerTool(
   'portkey_get_nft_items',
   {
+    annotations: READ_ONLY_ANNOTATIONS,
     description:
       'Get individual NFT items within a specific collection for a wallet address. Returns token ID, image, balance, and metadata. Use after getting collections to drill into a specific one.',
     inputSchema: {
@@ -421,6 +450,7 @@ server.registerTool(
 server.registerTool(
   'portkey_get_transaction_history',
   {
+    annotations: READ_ONLY_ANNOTATIONS,
     description:
       'Get the transaction history for a wallet address with optional filters. Returns a paginated list of transactions with amount, type, status, and timestamps. Use to review past activity.',
     inputSchema: {
@@ -459,6 +489,7 @@ server.registerTool(
 server.registerTool(
   'portkey_get_transaction_detail',
   {
+    annotations: READ_ONLY_ANNOTATIONS,
     description:
       'Get full details of a specific transaction by its ID. Returns from/to addresses, amount, status, fee, and other metadata. Use when a user asks about a specific transaction.',
     inputSchema: {
@@ -496,6 +527,7 @@ server.registerTool(
 server.registerTool(
   'portkey_transfer',
   {
+    annotations: NETWORK_WRITE_ANNOTATIONS,
     description:
       'Send a same-chain token transfer on aelf. Transfers tokens from the signer wallet to a target address on the same chain. Use for regular token sends within one aelf sidechain.',
     inputSchema: {
@@ -573,6 +605,7 @@ server.registerTool(
 server.registerTool(
   'portkey_cross_chain_transfer',
   {
+    annotations: NETWORK_WRITE_ANNOTATIONS,
     description:
       'Send a cross-chain token transfer between aelf chains (e.g. AELF -> tDVV). The target chain is derived from the recipient address format (ELF_address_chainId). Use when transferring tokens between different aelf sidechains.',
     inputSchema: {
@@ -643,6 +676,7 @@ server.registerTool(
 server.registerTool(
   'portkey_approve',
   {
+    annotations: NETWORK_WRITE_ANNOTATIONS,
     description:
       'Approve a spender contract to spend tokens on behalf of the wallet owner (similar to ERC20 approve). Use before interacting with DeFi protocols or bridges that need token allowance.',
     inputSchema: {
@@ -702,6 +736,7 @@ server.registerTool(
 server.registerTool(
   'portkey_call_view_method',
   {
+    annotations: READ_ONLY_ANNOTATIONS,
     description:
       'Call a read-only (view) method on any aelf smart contract. Does not require a private key. Returns the method result. Use when querying on-chain state like GetBalance, GetTokenInfo, etc.',
     inputSchema: {
@@ -738,6 +773,7 @@ server.registerTool(
 server.registerTool(
   'portkey_call_send_method',
   {
+    annotations: NETWORK_WRITE_ANNOTATIONS,
     description:
       'Call a state-changing (send) method on any aelf smart contract. Requires a private key for signing. Waits for the transaction to be mined and returns the transaction ID. Use for any on-chain write operation.',
     inputSchema: {
@@ -795,6 +831,7 @@ server.registerTool(
 server.registerTool(
   'portkey_estimate_fee',
   {
+    annotations: READ_ONLY_ANNOTATIONS,
     description:
       'Estimate the transaction fee for a contract call without actually executing it. Returns fee amounts by token symbol. Use before sending a transaction to show the user expected costs.',
     inputSchema: {
@@ -856,6 +893,7 @@ server.registerTool(
 server.registerTool(
   'portkey_ebridge_transfer',
   {
+    annotations: NETWORK_WRITE_ANNOTATIONS,
     description:
       'Execute a cross-chain transfer via eBridge (aelf to/from EVM chains). Automatically handles allowance approval and receipt creation. Use when transferring tokens between aelf and Ethereum/BSC/etc.',
     inputSchema: {
@@ -925,6 +963,7 @@ server.registerTool(
 server.registerTool(
   'portkey_ebridge_info',
   {
+    annotations: READ_ONLY_ANNOTATIONS,
     description:
       'Query eBridge transfer limits and fees for a cross-chain route. Returns daily limit, current remaining limit, and ELF fee. Use before an eBridge transfer to check if the amount is within limits.',
     inputSchema: {
