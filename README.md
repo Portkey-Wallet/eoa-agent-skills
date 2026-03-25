@@ -30,8 +30,16 @@ AI Agent Skills for Portkey EOA Wallet on [aelf blockchain](https://aelf.com). P
 ### Install
 
 ```bash
+# Local repo checkout / smoke test only
 bun install
 ```
+
+### Supported Activation Paths
+
+- Managed install / ClawHub when available.
+- For OpenClaw when managed install is unavailable, use `bunx -p @portkey/eoa-agent-skills portkey-setup openclaw`. This path requires Bun or a managed runtime that provides Bun.
+- Local repo checkout after `bun install` for development and smoke tests only.
+- Copying raw source into `~/.codex/skills/portkey-eoa` without installing dependencies is not a supported install path and is not guaranteed to boot.
 
 ### One-Click Setup
 
@@ -55,7 +63,7 @@ bun run bin/setup.ts openclaw --config-path /path/to/openclaw-config.json
 bun run bin/setup.ts list
 ```
 
-### IronClaw Native WASM (Recommended)
+### IronClaw Native WASM (Local Build / Smoke Test)
 
 ```bash
 # Build staged assets and package the release bundle locally
@@ -146,8 +154,9 @@ Remote activation contract:
 - Preferred IronClaw activation is the GitHub Release bundle URL: download the versioned `.tar.gz` asset and import it through IronClaw's WASM extension flow.
 - Local smoke tests can use the staged bare artifact at `./artifacts/ironclaw/portkey-eoa-ironclaw.wasm`.
 - Preferred ClawHub role is discovery / install-shell that routes users to the native-wasm artifact.
-- Prefer ClawHub / managed install for OpenClaw when available; otherwise use `bunx -p @portkey/eoa-agent-skills portkey-setup openclaw`
-- Local repo checkout remains a development smoke-test path only.
+- Prefer ClawHub / managed install for OpenClaw when available; otherwise use `bunx -p @portkey/eoa-agent-skills portkey-setup openclaw` with Bun or a managed runtime that provides Bun.
+- Local repo checkout remains a development smoke-test path only after `bun install`.
+- Copying raw source into `~/.codex/skills/portkey-eoa` without dependency installation is not a supported runtime path.
 
 ### CLI Usage
 
@@ -169,6 +178,36 @@ bun run portkey_eoa_skill.ts transfer --to RECIPIENT --symbol ELF --amount 10000
 
 # Contract
 bun run portkey_eoa_skill.ts contract view --contract-address ADDR --method GetBalance --params '{"symbol":"ELF","owner":"..."}' --chain-id AELF
+bun run portkey_eoa_skill.ts contract send --contract-address ADDR --method Approve --params '{"symbol":"ELF","spender":"...","amount":"100000000"}' --chain-id AELF --address YOUR_ADDRESS --password mypass
+```
+
+### Contract Call Routing
+
+Choose the contract tool by method type:
+
+- `portkey_call_view_method` / CLI `contract view` are for `Get*` and other read-only methods.
+- `portkey_call_send_method` / CLI `contract send` are for state-changing methods only.
+- For `Empty`-input view methods such as `GetConfig`, omit `--params` entirely so the read call stays argument-free.
+- Do not call `GetConfig`, `GetPairQueueStatus`, or other resonance `Get*` methods through the send path. A send receipt cannot replace a direct view response.
+
+Resonance examples:
+
+```bash
+# Read-only queue status lookup
+bun run portkey_eoa_skill.ts contract view \
+  --contract-address 28Lot71VrWm1WxrEjuDqaepywi7gYyZwHysUcztjkHGFsPPrZy \
+  --method GetPairQueueStatus \
+  --params '"<address>"' \
+  --chain-id tDVV
+
+# State-changing queue join
+bun run portkey_eoa_skill.ts contract send \
+  --contract-address 28Lot71VrWm1WxrEjuDqaepywi7gYyZwHysUcztjkHGFsPPrZy \
+  --method JoinPairQueue \
+  --params '{}' \
+  --chain-id tDVV \
+  --address YOUR_ADDRESS \
+  --password mypass
 ```
 
 ### SDK Usage
@@ -226,8 +265,8 @@ Chain list discovery remains CLI/SDK only via `bun run portkey_eoa_skill.ts quer
 
 ### Contract (4)
 - `portkey_approve` — Token spending approval
-- `portkey_call_view_method` — Generic contract read
-- `portkey_call_send_method` — Generic contract write
+- `portkey_call_view_method` — Generic contract read (`Get*` / read-only only)
+- `portkey_call_send_method` — Generic contract write (state-changing only)
 - `portkey_estimate_fee` — Transaction fee estimation
 
 ### eBridge (2)
@@ -239,7 +278,7 @@ Chain list discovery remains CLI/SDK only via `bun run portkey_eoa_skill.ts quer
 ```
 index.ts (SDK)  ─┐
 server.ts (MCP)  ─┼─> src/core/  ──> lib/
-skill.ts (CLI)   ─┘   (pure logic)    (infra)
+portkey_eoa_skill.ts (CLI)  ─┘   (pure logic)    (infra)
 ```
 
 Three adapters call the same core functions — zero duplicated logic.

@@ -35,6 +35,7 @@ import {
   SIGNER_ERROR_CODES,
   formatSignerError,
 } from '../../lib/signer-error-codes.js';
+import { RUNTIME_SKILL_VERSION } from '../../lib/runtime-version.js';
 import * as path from 'node:path';
 
 // ============================================================
@@ -74,7 +75,7 @@ export async function createWallet(
     },
     {
       skill: 'portkey-eoa',
-      version: process.env.npm_package_version || '0.0.0',
+      version: RUNTIME_SKILL_VERSION,
     },
   );
 
@@ -160,7 +161,7 @@ export async function importWallet(
     },
     {
       skill: 'portkey-eoa',
-      version: process.env.npm_package_version || '0.0.0',
+      version: RUNTIME_SKILL_VERSION,
     },
   );
 
@@ -440,6 +441,6 @@ export function setActiveWallet(input: {
 }) {
   return setActiveWalletProfile(input, {
     skill: 'portkey-eoa',
-    version: process.env.npm_package_version || '0.0.0',
+    version: RUNTIME_SKILL_VERSION,
   });
 }

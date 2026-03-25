@@ -364,7 +364,7 @@ const contract = program.command('contract').description('Generic contract calls
 
 contract
   .command('view')
-  .description('Call a read-only contract method')
+  .description('Call a read-only contract method (omit --params for Empty-input views like GetConfig)')
   .requiredOption('--contract-address <address>', 'Contract address')
   .requiredOption('--method <name>', 'Method name')
   .option('--params <json>', 'Method params as JSON string')
@@ -387,7 +387,7 @@ contract
 
 contract
   .command('send')
-  .description('Call a state-changing contract method')
+  .description('Call a state-changing contract method (never use for Get* / read-only methods)')
   .requiredOption('--contract-address <address>', 'Contract address')
   .requiredOption('--method <name>', 'Method name')
   .option('--params <json>', 'Method params as JSON string')

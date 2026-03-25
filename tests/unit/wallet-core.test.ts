@@ -14,6 +14,7 @@ import {
   setActiveWallet,
 } from '../../src/core/wallet.js';
 import { getConfig } from '../../lib/config.js';
+import packageJson from '../../package.json';
 
 describe('core/wallet', () => {
   const testDir = path.join(
@@ -204,6 +205,47 @@ describe('core/wallet', () => {
     expect(active?.walletType).toBe('EOA');
     expect(active?.source).toBe('eoa-local');
     expect(active?.address).toBe(created.address);
+  });
+
+  test('wallet context writer version comes from package.json', async () => {
+    delete process.env.npm_package_version;
+
+    const created = await createWallet(config, { password: 'pass' });
+    const afterCreate = JSON.parse(fs.readFileSync(contextPath, 'utf8')) as {
+      lastWriter?: { version?: string };
+    };
+    expect(afterCreate.lastWriter?.version).toBe(packageJson.version);
+
+    setActiveWallet({
+      walletType: 'EOA',
+      source: 'eoa-local',
+      network: 'mainnet',
+      address: created.address,
+      walletFile: path.join(testDir, `${created.address}.json`),
+    });
+
+    const afterManualSet = JSON.parse(
+      fs.readFileSync(contextPath, 'utf8'),
+    ) as { lastWriter?: { version?: string } };
+    expect(afterManualSet.lastWriter?.version).toBe(packageJson.version);
+  });
+
+  test('importWallet writes package version to wallet context', async () => {
+    delete process.env.npm_package_version;
+
+    const created = await createWallet(config, { password: 'pass' });
+    fs.rmSync(testDir, { recursive: true, force: true });
+    fs.rmSync(contextPath, { force: true });
+
+    await importWallet(config, {
+      password: 'pass-import',
+      mnemonic: created.mnemonic,
+    });
+
+    const afterImport = JSON.parse(fs.readFileSync(contextPath, 'utf8')) as {
+      lastWriter?: { version?: string };
+    };
+    expect(afterImport.lastWriter?.version).toBe(packageJson.version);
   });
 
   test('resolvePrivateKey can read from active wallet context', async () => {
