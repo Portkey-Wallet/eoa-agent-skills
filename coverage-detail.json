@@ -3,9 +3,9 @@
   "coverageModel": "bun-text-all-files-by-file-average",
   "byFileAverage": {
     "lines": {
-      "total": 20,
-      "covered": 20,
-      "pct": 84.40598951500698
+      "total": 21,
+      "covered": 21,
+      "pct": 84.67610991778068
     },
     "functions": {
       "total": 0,
@@ -20,9 +20,9 @@
   },
   "weighted": {
     "lines": {
-      "total": 1907,
-      "covered": 1474,
-      "pct": 77.29417933927635
+      "total": 1918,
+      "covered": 1484,
+      "pct": 77.37226277372264
     },
     "functions": {
       "total": 0,
@@ -199,6 +199,24 @@
       }
     },
     {
+      "file": "lib/runtime-version.ts",
+      "lines": {
+        "total": 10,
+        "covered": 9,
+        "pct": 90
+      },
+      "functions": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "pct": 0
+      }
+    },
+    {
       "file": "lib/signer-error-codes.ts",
       "lines": {
         "total": 9,
@@ -327,9 +345,9 @@
     {
       "file": "src/core/wallet.ts",
       "lines": {
-        "total": 285,
-        "covered": 221,
-        "pct": 77.54385964912281
+        "total": 286,
+        "covered": 222,
+        "pct": 77.62237762237763
       },
       "functions": {
         "total": 0,
