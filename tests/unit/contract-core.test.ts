@@ -116,6 +116,28 @@ describe('core/contract', () => {
     ).rejects.toThrow('view failed');
   });
 
+  test('callViewMethod keeps omitted params undefined for Empty-input views', async () => {
+    let capturedParams: unknown = Symbol('unset');
+
+    chainCoreMockState.getContractBasicImpl = async () => ({
+      callViewMethod: async (_methodName: string, params?: unknown) => {
+        capturedParams = params;
+        return { data: { ok: true } };
+      },
+      callSendMethod: async () => ({ transactionId: 'tx' }),
+      encodedTx: async () => ({ data: 'RAW' }),
+    });
+
+    const result = await contractCore.callViewMethod(config, {
+      chainId: 'AELF',
+      contractAddress: 'CONTRACT',
+      methodName: 'GetConfig',
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(capturedParams).toBeUndefined();
+  });
+
   test('callSendMethod success and failure branches', async () => {
     chainCoreMockState.getContractBasicImpl = async () => ({
       callViewMethod: async () => ({ data: {} }),

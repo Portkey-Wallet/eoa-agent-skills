@@ -30,8 +30,16 @@
 ### 安装
 
 ```bash
+# 本地 repo checkout / smoke test only
 bun install
 ```
+
+### 支持的激活路径
+
+- 有 ClawHub / managed install 时优先使用托管安装。
+- OpenClaw 在无托管安装时，使用 `bunx -p @portkey/eoa-agent-skills portkey-setup openclaw`。这条路径需要 Bun 或提供 Bun 的受管 runtime。
+- 本地 repo checkout 仅用于开发和 smoke test，并且需要先执行 `bun install`。
+- 仅把源码复制到 `~/.codex/skills/portkey-eoa` 但不安装依赖，不属于受支持安装路径，也不保证能正常启动。
 
 ### 一键配置
 
@@ -55,7 +63,7 @@ bun run bin/setup.ts openclaw --config-path /path/to/openclaw-config.json
 bun run bin/setup.ts list
 ```
 
-### IronClaw Native WASM（推荐）
+### IronClaw Native WASM（本地构建 / Smoke Test）
 
 ```bash
 # 本地构建 staged assets 并打 release bundle
@@ -146,8 +154,9 @@ native-wasm 说明：
 - 推荐的 IronClaw 激活方式是 GitHub Release 上的 versioned `.tar.gz` bundle URL，通过 IronClaw 的 WASM extension 导入流程安装。
 - 本地 smoke test 仍可直接使用 `./artifacts/ironclaw/portkey-eoa-ironclaw.wasm`。
 - 推荐的 ClawHub 角色是 discovery / install-shell，引导用户安装 native-wasm artifact。
-- OpenClaw 若有 ClawHub / managed install 则优先使用；否则回退到 `bunx -p @portkey/eoa-agent-skills portkey-setup openclaw`
-- 本地 repo checkout 仅保留给开发阶段 smoke test。
+- OpenClaw 若有 ClawHub / managed install 则优先使用；否则回退到 `bunx -p @portkey/eoa-agent-skills portkey-setup openclaw`，并确保环境提供 Bun runtime。
+- 本地 repo checkout 仅保留给开发阶段 smoke test，并且需要先执行 `bun install`。
+- 仅把源码复制到 `~/.codex/skills/portkey-eoa` 但不安装依赖，不属于受支持运行路径。
 
 ### CLI 使用
 
@@ -169,6 +178,36 @@ bun run portkey_eoa_skill.ts transfer --to 收款地址 --symbol ELF --amount 10
 
 # 合约调用
 bun run portkey_eoa_skill.ts contract view --contract-address 合约地址 --method GetBalance --params '{"symbol":"ELF","owner":"..."}' --chain-id AELF
+bun run portkey_eoa_skill.ts contract send --contract-address 合约地址 --method Approve --params '{"symbol":"ELF","spender":"...","amount":"100000000"}' --chain-id AELF --address 你的地址 --password mypass
+```
+
+### 合约调用路由规则
+
+合约工具要按方法类型来选：
+
+- `portkey_call_view_method` / CLI `contract view` 用于 `Get*` 和其它 read-only 方法。
+- `portkey_call_send_method` / CLI `contract send` 只用于 state-changing 方法。
+- 对 `GetConfig` 这类 `Empty` 入参的 view 方法，要直接省略 `--params`，保持 read 调用不带参数。
+- 不要把 `GetConfig`、`GetPairQueueStatus` 这类 resonance `Get*` 方法走 send 路径；send receipt 不能替代 direct view 返回值。
+
+Resonance 示例：
+
+```bash
+# 只读查询排队状态
+bun run portkey_eoa_skill.ts contract view \
+  --contract-address 28Lot71VrWm1WxrEjuDqaepywi7gYyZwHysUcztjkHGFsPPrZy \
+  --method GetPairQueueStatus \
+  --params '"<address>"' \
+  --chain-id tDVV
+
+# 发起写操作加入队列
+bun run portkey_eoa_skill.ts contract send \
+  --contract-address 28Lot71VrWm1WxrEjuDqaepywi7gYyZwHysUcztjkHGFsPPrZy \
+  --method JoinPairQueue \
+  --params '{}' \
+  --chain-id tDVV \
+  --address 你的地址 \
+  --password mypass
 ```
 
 ### SDK 使用
@@ -226,8 +265,8 @@ chain list 目前仍然只通过 CLI/SDK 提供：使用 `bun run portkey_eoa_sk
 
 ### 合约（4）
 - `portkey_approve` — Token 授权
-- `portkey_call_view_method` — 通用合约只读调用
-- `portkey_call_send_method` — 通用合约写调用
+- `portkey_call_view_method` — 通用合约只读调用（仅 `Get*` / view-only）
+- `portkey_call_send_method` — 通用合约写调用（仅 state-changing）
 - `portkey_estimate_fee` — 交易手续费预估
 
 ### eBridge（2）
@@ -239,7 +278,7 @@ chain list 目前仍然只通过 CLI/SDK 提供：使用 `bun run portkey_eoa_sk
 ```
 index.ts (SDK)  ─┐
 server.ts (MCP)  ─┼─> src/core/  ──> lib/
-skill.ts (CLI)   ─┘   (纯逻辑)      (基础设施)
+portkey_eoa_skill.ts (CLI)  ─┘   (纯逻辑)      (基础设施)
 ```
 
 三个适配器调用同一套 Core 函数——零重复逻辑。

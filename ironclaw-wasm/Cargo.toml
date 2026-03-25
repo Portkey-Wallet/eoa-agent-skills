@@ -1,6 +1,6 @@
 [package]
 name = "portkey_eoa_ironclaw"
-version = "1.2.5"
+version = "1.2.6"
 edition = "2021"
 description = "Portkey EOA native IronClaw WASM tool"
 license = "MIT"

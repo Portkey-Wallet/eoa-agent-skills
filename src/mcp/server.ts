@@ -738,14 +738,14 @@ server.registerTool(
   {
     annotations: READ_ONLY_ANNOTATIONS,
     description:
-      'Call a read-only (view) method on any aelf smart contract. Does not require a private key. Returns the method result. Use when querying on-chain state like GetBalance, GetTokenInfo, etc.',
+      'Call a read-only (view) method on any aelf smart contract. Does not require a private key. Returns the method result. Use for Get* and other read-only methods such as GetBalance, GetTokenInfo, or GetConfig. For Empty-input views like GetConfig, omit params entirely.',
     inputSchema: {
       contractAddress: z.string().describe('Smart contract address'),
       methodName: z.string().describe('Contract method name (e.g. GetBalance)'),
       params: z
         .any()
         .optional()
-        .describe('Method parameters as a JSON object'),
+        .describe('Method parameters as a JSON object. Omit entirely for Empty-input views such as GetConfig.'),
       chainId: z.string().describe('Chain ID'),
       network: z
         .enum(['mainnet'])
@@ -775,7 +775,7 @@ server.registerTool(
   {
     annotations: NETWORK_WRITE_ANNOTATIONS,
     description:
-      'Call a state-changing (send) method on any aelf smart contract. Requires a private key for signing. Waits for the transaction to be mined and returns the transaction ID. Use for any on-chain write operation.',
+      'Call a state-changing (send) method on any aelf smart contract. Requires a private key for signing. Waits for the transaction to be mined and returns the transaction ID. Use for on-chain write operations only. Do not use for Get* or other read-only methods; a send receipt is not a view payload.',
     inputSchema: {
       contractAddress: z.string().describe('Smart contract address'),
       methodName: z.string().describe('Contract method name'),
