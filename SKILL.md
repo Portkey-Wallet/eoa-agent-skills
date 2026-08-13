@@ -1,37 +1,9 @@
 ---
-name: "portkey-eoa-agent-skills"
-version: "1.2.6"
-description: "Portkey EOA wallet and asset operations for aelf agents."
-activation:
-  keywords:
-    - wallet
-    - eoa
-    - transfer
-    - token
-    - nft
-    - aelf
-    - balance
-    - create wallet
-    - import wallet
-  exclude_keywords:
-    - ca
-    - guardian
-    - recovery
-    - ca hash
-    - ca wallet
-  tags:
-    - wallet
-    - blockchain
-    - aelf
-    - portkey
-  max_context_tokens: 1800
+name: portkey-eoa-agent-skills
+description: Portkey EOA wallet lifecycle and asset operations for creating, importing, listing, backing up, selecting, and deleting wallets; querying tokens, NFTs, prices, balances, and history; and performing transfers, approvals, bridge, view, send, and fee estimation operations on AElf. Use by default for direct EOA wallets; use the Portkey CA skill for guardian, recovery, CA hash, or Contract Account workflows.
 ---
 
 # Portkey EOA Agent Skill
-
-## When to use
-- Use this skill when you need EOA wallet management, transfers, asset queries, and contract calls.
-- Default to the EOA wallet path unless the user explicitly asks for CA identity, guardian, or recovery flows.
 
 ## Capabilities
 - Wallet lifecycle: create, import, list, backup, delete
@@ -39,6 +11,12 @@ activation:
 - Asset/query operations: token balances, NFTs, history, prices
 - Transfer and contract execution via CLI/MCP/SDK adapters
 - Supports SDK, CLI, MCP, OpenClaw, and IronClaw integration from one codebase.
+
+## Online configuration
+- Portkey EOA uses `mainnet` and the public API `https://eoa-portkey.portkey.finance`; public chain and asset reads need no credentials.
+- Chain RPC and default MultiToken addresses are loaded from the API chain-info response (`endPoint` and `defaultToken.address`) and cached per network instead of being hardcoded.
+- Generic contract and bridge tools require caller-supplied target contract addresses because those deployments are operation-specific.
+- Wallet files default to `~/.portkey/eoa/wallets/`; override storage, API, signer, read-only key, and shared wallet context through the variables in `.env.example`.
 
 ## Safe usage rules
 - Never print private keys, mnemonics, auto-generated passwords, or tokens in channel outputs.
