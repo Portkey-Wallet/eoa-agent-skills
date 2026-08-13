@@ -3,9 +3,9 @@
   "coverageModel": "bun-text-all-files-by-file-average",
   "byFileAverage": {
     "lines": {
-      "total": 21,
-      "covered": 21,
-      "pct": 84.67610991778068
+      "total": 20,
+      "covered": 20,
+      "pct": 88.32318071979216
     },
     "functions": {
       "total": 0,
@@ -20,9 +20,9 @@
   },
   "weighted": {
     "lines": {
-      "total": 1918,
-      "covered": 1484,
-      "pct": 77.37226277372264
+      "total": 1722,
+      "covered": 1461,
+      "pct": 84.8432055749129
     },
     "functions": {
       "total": 0,
@@ -78,24 +78,6 @@
         "total": 9,
         "covered": 9,
         "pct": 100
-      },
-      "functions": {
-        "total": 0,
-        "covered": 0,
-        "pct": 0
-      },
-      "branches": {
-        "total": 0,
-        "covered": 0,
-        "pct": 0
-      }
-    },
-    {
-      "file": "lib/aelf.ts",
-      "lines": {
-        "total": 196,
-        "covered": 23,
-        "pct": 11.73469387755102
       },
       "functions": {
         "total": 0,
