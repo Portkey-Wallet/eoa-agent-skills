@@ -1,5 +1,5 @@
 {
-  "version": "1.2.6",
+  "version": "1.2.7",
   "wit_version": "0.3.0",
   "capabilities": {
     "http": {
